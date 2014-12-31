@@ -1,0 +1,456 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		DD835ED808B916C7D5CC9C9C /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0390E533AF0620F71839F873 /* libPods.a */; };
+		F92DB2EC1A52448F002CC793 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F92DB2EB1A52448F002CC793 /* main.m */; };
+		F92DB2EF1A52448F002CC793 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F92DB2EE1A52448F002CC793 /* AppDelegate.m */; };
+		F92DB2F21A52448F002CC793 /* CoretextController.m in Sources */ = {isa = PBXBuildFile; fileRef = F92DB2F11A52448F002CC793 /* CoretextController.m */; };
+		F92DB2F51A52448F002CC793 /* WebController.m in Sources */ = {isa = PBXBuildFile; fileRef = F92DB2F41A52448F002CC793 /* WebController.m */; };
+		F92DB2F81A52448F002CC793 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F92DB2F61A52448F002CC793 /* Main.storyboard */; };
+		F92DB2FA1A52448F002CC793 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F92DB2F91A52448F002CC793 /* Images.xcassets */; };
+		F92DB2FD1A52448F002CC793 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = F92DB2FB1A52448F002CC793 /* LaunchScreen.xib */; };
+		F92DB31A1A5248F2002CC793 /* emotion1.png in Resources */ = {isa = PBXBuildFile; fileRef = F92DB3161A5248F2002CC793 /* emotion1.png */; };
+		F92DB31B1A5248F2002CC793 /* emotion1@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F92DB3171A5248F2002CC793 /* emotion1@2x.png */; };
+		F92DB31C1A5248F2002CC793 /* emotion2.png in Resources */ = {isa = PBXBuildFile; fileRef = F92DB3181A5248F2002CC793 /* emotion2.png */; };
+		F92DB31D1A5248F2002CC793 /* emotion2@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F92DB3191A5248F2002CC793 /* emotion2@2x.png */; };
+		F92DB3221A524E99002CC793 /* Emotion.plist in Resources */ = {isa = PBXBuildFile; fileRef = F92DB3211A524E99002CC793 /* Emotion.plist */; };
+		F92DB32B1A5252D0002CC793 /* NSString+HTML.m in Sources */ = {isa = PBXBuildFile; fileRef = F92DB32A1A5252D0002CC793 /* NSString+HTML.m */; };
+		F92DB3321A53AA7E002CC793 /* VTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = F92DB3311A53AA7E002CC793 /* VTextView.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0390E533AF0620F71839F873 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1C130AC3584C7921858AB862 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+		CC6F4F3F606569021234EC93 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		F92DB2E61A52448F002CC793 /* VEmotionText.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VEmotionText.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F92DB2EA1A52448F002CC793 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F92DB2EB1A52448F002CC793 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		F92DB2ED1A52448F002CC793 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		F92DB2EE1A52448F002CC793 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		F92DB2F01A52448F002CC793 /* CoretextController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CoretextController.h; sourceTree = "<group>"; };
+		F92DB2F11A52448F002CC793 /* CoretextController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CoretextController.m; sourceTree = "<group>"; };
+		F92DB2F31A52448F002CC793 /* WebController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebController.h; sourceTree = "<group>"; };
+		F92DB2F41A52448F002CC793 /* WebController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WebController.m; sourceTree = "<group>"; };
+		F92DB2F71A52448F002CC793 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		F92DB2F91A52448F002CC793 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ../VEmotionText/Images.xcassets; sourceTree = "<group>"; };
+		F92DB2FC1A52448F002CC793 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		F92DB3161A5248F2002CC793 /* emotion1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = emotion1.png; sourceTree = "<group>"; };
+		F92DB3171A5248F2002CC793 /* emotion1@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "emotion1@2x.png"; sourceTree = "<group>"; };
+		F92DB3181A5248F2002CC793 /* emotion2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = emotion2.png; sourceTree = "<group>"; };
+		F92DB3191A5248F2002CC793 /* emotion2@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "emotion2@2x.png"; sourceTree = "<group>"; };
+		F92DB3211A524E99002CC793 /* Emotion.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Emotion.plist; sourceTree = "<group>"; };
+		F92DB3291A5252D0002CC793 /* NSString+HTML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+HTML.h"; sourceTree = "<group>"; };
+		F92DB32A1A5252D0002CC793 /* NSString+HTML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+HTML.m"; sourceTree = "<group>"; };
+		F92DB3301A53AA7E002CC793 /* VTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VTextView.h; sourceTree = "<group>"; };
+		F92DB3311A53AA7E002CC793 /* VTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VTextView.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F92DB2E31A52448F002CC793 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DD835ED808B916C7D5CC9C9C /* libPods.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2C67B9E5C7B616682E248D3D /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				CC6F4F3F606569021234EC93 /* Pods.debug.xcconfig */,
+				1C130AC3584C7921858AB862 /* Pods.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		3F8F82EE4F2B52B48864945D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0390E533AF0620F71839F873 /* libPods.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F92DB2DD1A52448F002CC793 = {
+			isa = PBXGroup;
+			children = (
+				F92DB2E81A52448F002CC793 /* VEmotionText */,
+				F92DB2E71A52448F002CC793 /* Products */,
+				F92DB3141A5248F2002CC793 /* Resources */,
+				2C67B9E5C7B616682E248D3D /* Pods */,
+				3F8F82EE4F2B52B48864945D /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		F92DB2E71A52448F002CC793 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F92DB2E61A52448F002CC793 /* VEmotionText.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F92DB2E81A52448F002CC793 /* VEmotionText */ = {
+			isa = PBXGroup;
+			children = (
+				F92DB3201A524BB4002CC793 /* Storyboards */,
+				F92DB31F1A524B8B002CC793 /* Controllers */,
+				F92DB31E1A524B73002CC793 /* Application */,
+				F92DB2E91A52448F002CC793 /* Supporting Files */,
+			);
+			path = VEmotionText;
+			sourceTree = "<group>";
+		};
+		F92DB2E91A52448F002CC793 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				F92DB2EA1A52448F002CC793 /* Info.plist */,
+				F92DB2EB1A52448F002CC793 /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		F92DB3141A5248F2002CC793 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F92DB2F91A52448F002CC793 /* Images.xcassets */,
+				F92DB3211A524E99002CC793 /* Emotion.plist */,
+				F92DB3151A5248F2002CC793 /* Emotion */,
+			);
+			name = Resources;
+			path = Resource;
+			sourceTree = "<group>";
+		};
+		F92DB3151A5248F2002CC793 /* Emotion */ = {
+			isa = PBXGroup;
+			children = (
+				F92DB3161A5248F2002CC793 /* emotion1.png */,
+				F92DB3171A5248F2002CC793 /* emotion1@2x.png */,
+				F92DB3181A5248F2002CC793 /* emotion2.png */,
+				F92DB3191A5248F2002CC793 /* emotion2@2x.png */,
+			);
+			path = Emotion;
+			sourceTree = "<group>";
+		};
+		F92DB31E1A524B73002CC793 /* Application */ = {
+			isa = PBXGroup;
+			children = (
+				F92DB2ED1A52448F002CC793 /* AppDelegate.h */,
+				F92DB2EE1A52448F002CC793 /* AppDelegate.m */,
+			);
+			name = Application;
+			sourceTree = "<group>";
+		};
+		F92DB31F1A524B8B002CC793 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				F92DB3281A5252A2002CC793 /* WebSrc */,
+				F92DB3271A525292002CC793 /* CoretextSrc */,
+				F92DB2F01A52448F002CC793 /* CoretextController.h */,
+				F92DB2F11A52448F002CC793 /* CoretextController.m */,
+				F92DB2F31A52448F002CC793 /* WebController.h */,
+				F92DB2F41A52448F002CC793 /* WebController.m */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
+		F92DB3201A524BB4002CC793 /* Storyboards */ = {
+			isa = PBXGroup;
+			children = (
+				F92DB2F61A52448F002CC793 /* Main.storyboard */,
+				F92DB2FB1A52448F002CC793 /* LaunchScreen.xib */,
+			);
+			name = Storyboards;
+			sourceTree = "<group>";
+		};
+		F92DB3271A525292002CC793 /* CoretextSrc */ = {
+			isa = PBXGroup;
+			children = (
+				F92DB3301A53AA7E002CC793 /* VTextView.h */,
+				F92DB3311A53AA7E002CC793 /* VTextView.m */,
+			);
+			path = CoretextSrc;
+			sourceTree = SOURCE_ROOT;
+		};
+		F92DB3281A5252A2002CC793 /* WebSrc */ = {
+			isa = PBXGroup;
+			children = (
+				F92DB3291A5252D0002CC793 /* NSString+HTML.h */,
+				F92DB32A1A5252D0002CC793 /* NSString+HTML.m */,
+			);
+			path = WebSrc;
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F92DB2E51A52448F002CC793 /* VEmotionText */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F92DB30C1A52448F002CC793 /* Build configuration list for PBXNativeTarget "VEmotionText" */;
+			buildPhases = (
+				E74678D4F511611F35B43C7A /* Check Pods Manifest.lock */,
+				F92DB2E21A52448F002CC793 /* Sources */,
+				F92DB2E31A52448F002CC793 /* Frameworks */,
+				F92DB2E41A52448F002CC793 /* Resources */,
+				F6C421735C5E936F2A0AD269 /* Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VEmotionText;
+			productName = VEmotionText;
+			productReference = F92DB2E61A52448F002CC793 /* VEmotionText.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F92DB2DE1A52448F002CC793 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+				ORGANIZATIONNAME = everycode;
+				TargetAttributes = {
+					F92DB2E51A52448F002CC793 = {
+						CreatedOnToolsVersion = 6.1;
+					};
+				};
+			};
+			buildConfigurationList = F92DB2E11A52448F002CC793 /* Build configuration list for PBXProject "VEmotionText" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = F92DB2DD1A52448F002CC793;
+			productRefGroup = F92DB2E71A52448F002CC793 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F92DB2E51A52448F002CC793 /* VEmotionText */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F92DB2E41A52448F002CC793 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F92DB31B1A5248F2002CC793 /* emotion1@2x.png in Resources */,
+				F92DB31A1A5248F2002CC793 /* emotion1.png in Resources */,
+				F92DB3221A524E99002CC793 /* Emotion.plist in Resources */,
+				F92DB2F81A52448F002CC793 /* Main.storyboard in Resources */,
+				F92DB31C1A5248F2002CC793 /* emotion2.png in Resources */,
+				F92DB2FD1A52448F002CC793 /* LaunchScreen.xib in Resources */,
+				F92DB31D1A5248F2002CC793 /* emotion2@2x.png in Resources */,
+				F92DB2FA1A52448F002CC793 /* Images.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		E74678D4F511611F35B43C7A /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		F6C421735C5E936F2A0AD269 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F92DB2E21A52448F002CC793 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F92DB2F51A52448F002CC793 /* WebController.m in Sources */,
+				F92DB2EF1A52448F002CC793 /* AppDelegate.m in Sources */,
+				F92DB3321A53AA7E002CC793 /* VTextView.m in Sources */,
+				F92DB32B1A5252D0002CC793 /* NSString+HTML.m in Sources */,
+				F92DB2F21A52448F002CC793 /* CoretextController.m in Sources */,
+				F92DB2EC1A52448F002CC793 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		F92DB2F61A52448F002CC793 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				F92DB2F71A52448F002CC793 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		F92DB2FB1A52448F002CC793 /* LaunchScreen.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				F92DB2FC1A52448F002CC793 /* Base */,
+			);
+			name = LaunchScreen.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		F92DB30A1A52448F002CC793 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		F92DB30B1A52448F002CC793 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		F92DB30D1A52448F002CC793 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = CC6F4F3F606569021234EC93 /* Pods.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = VEmotionText/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		F92DB30E1A52448F002CC793 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1C130AC3584C7921858AB862 /* Pods.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = VEmotionText/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F92DB2E11A52448F002CC793 /* Build configuration list for PBXProject "VEmotionText" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F92DB30A1A52448F002CC793 /* Debug */,
+				F92DB30B1A52448F002CC793 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F92DB30C1A52448F002CC793 /* Build configuration list for PBXNativeTarget "VEmotionText" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F92DB30D1A52448F002CC793 /* Debug */,
+				F92DB30E1A52448F002CC793 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F92DB2DE1A52448F002CC793 /* Project object */;
+}
