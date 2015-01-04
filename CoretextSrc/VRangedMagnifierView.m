@@ -1,0 +1,57 @@
+//
+//  VRangedMagnifierView.m
+//  VEmotionText
+//
+//  Created by Vic Zhou on 1/4/15.
+//  Copyright (c) 2015 everycode. All rights reserved.
+//
+
+#import "VRangedMagnifierView.h"
+
+@implementation VRangedMagnifierView
+
+#pragma mark - NSObject
+
++ (VRangedMagnifierView*)instance {
+    return [[self alloc] init];
+}
+
+-(id)init {
+    //默认大小
+    CGRect rect = CGRectMake(0.f, 0.f, 245.f, 59.f);
+    self = [super initWithFrame:rect];
+    if (self) {
+        self.backgroundColor = [UIColor whiteColor];
+    }
+    return self;
+}
+
+#pragma mark - Setter
+
+- (void)setImage:(UIImage *)image {
+    _image = image;
+    [self setNeedsDisplay];
+}
+
+#pragma mark - UIView
+
+- (void)drawRect:(CGRect)rect {
+    UIImage *loImage = [UIImage imageNamed:@"ranged_magnifier_lo"];
+    UIImage *maskImage = [UIImage imageNamed:@"ranged_magnifier_mask"];
+    UIImage *hiImage = [UIImage imageNamed:@"ranged_magnifier_hi"];
+
+    CGContextRef contextRef = UIGraphicsGetCurrentContext();
+    [loImage drawInRect:rect];
+
+    if (self.image) {
+        CGContextSaveGState(contextRef);
+
+        CGContextClipToMask(contextRef, rect, maskImage.CGImage);
+        [self.image drawInRect:rect];
+
+        CGContextRestoreGState(contextRef);
+    }
+    [hiImage drawInRect:rect];
+}
+
+@end
