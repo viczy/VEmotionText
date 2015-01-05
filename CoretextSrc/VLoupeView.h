@@ -6,11 +6,9 @@
 //  Copyright (c) 2015 everycode. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import "VMagnifierView.h"
 
-@interface VLoupeView : UIView
-
-@property (nonatomic, strong) UIImage *image;
+@interface VLoupeView : VMagnifierView
 
 + (VLoupeView*)instance;
 

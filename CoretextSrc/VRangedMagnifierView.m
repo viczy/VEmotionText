@@ -26,12 +26,12 @@
     return self;
 }
 
-#pragma mark - Setter
-
-- (void)setImage:(UIImage *)image {
-    _image = image;
-    [self setNeedsDisplay];
-}
+//#pragma mark - Setter
+//
+//- (void)setImage:(UIImage *)image {
+//    _image = image;
+//    [self setNeedsDisplay];
+//}
 
 #pragma mark - UIView
 

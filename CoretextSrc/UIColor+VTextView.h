@@ -12,4 +12,8 @@
 
 + (UIColor*)vCaretColor;
 
++ (UIColor*)vSelectionColor;
+
++ (UIColor*)vMarkColor;
+
 @end

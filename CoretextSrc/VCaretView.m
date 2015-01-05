@@ -9,8 +9,8 @@
 #import "VCaretView.h"
 #import "UIColor+VTextView.h"
 
-static const NSTimeInterval animationBeginTimeFactor = .6f;
-static const NSTimeInterval animationDuration = 1.f;
+static NSTimeInterval const animationBeginTimeFactor = .6f;
+static NSTimeInterval const animationDuration = 1.f;
 
 @interface VCaretView ()
 

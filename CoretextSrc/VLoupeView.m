@@ -8,7 +8,7 @@
 
 #import "VLoupeView.h"
 
-static const CGFloat scaleFactor = 1.5f;
+static CGFloat const kScaleFactor = 1.5f;
 
 @implementation VLoupeView
 
@@ -26,13 +26,6 @@ static const CGFloat scaleFactor = 1.5f;
         self.backgroundColor = [UIColor whiteColor];
     }
     return self;
-}
-
-#pragma mark - Setter
-
-- (void)setImage:(UIImage *)image {
-    _image = image;
-    [self setNeedsDisplay];
 }
 
 #pragma mark - UIView
@@ -60,8 +53,8 @@ static const CGFloat scaleFactor = 1.5f;
 
 - (CGRect)imageRectWithSuperRect:(CGRect)superRect {
     CGPoint center = {CGRectGetMidX(superRect), CGRectGetMidY(superRect)};
-    CGFloat imageW = scaleFactor*CGRectGetWidth(superRect);
-    CGFloat imageH = scaleFactor*CGRectGetWidth(superRect);
+    CGFloat imageW = kScaleFactor*CGRectGetWidth(superRect);
+    CGFloat imageH = kScaleFactor*CGRectGetWidth(superRect);
     CGFloat imageX = center.x-imageW/2;
     CGFloat imageY = center.y-imageH/2;
     CGRect imageRect = CGRectMake(imageX, imageY, imageW, imageH);

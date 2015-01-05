@@ -14,4 +14,12 @@
     return [UIColor colorWithRed:0.259f green:0.420f blue:0.949f alpha:1.0f];
 }
 
++ (UIColor*)vSelectionColor {
+    return [UIColor colorWithRed:0.800f green:0.867f blue:0.929f alpha:1.0f];
+}
+
++ (UIColor*)vMarkColor {
+    return [UIColor colorWithRed:0.800f green:0.867f blue:0.929f alpha:1.0f];
+}
+
 @end

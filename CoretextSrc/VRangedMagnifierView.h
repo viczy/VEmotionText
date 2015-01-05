@@ -6,11 +6,9 @@
 //  Copyright (c) 2015 everycode. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import "VMagnifierView.h"
 
-@interface VRangedMagnifierView : UIView
-
-@property (nonatomic, strong) UIImage *image;
+@interface VRangedMagnifierView : VMagnifierView
 
 + (VRangedMagnifierView*)instance;
 
