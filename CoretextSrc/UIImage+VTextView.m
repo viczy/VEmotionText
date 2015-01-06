@@ -11,10 +11,10 @@
 @implementation UIImage (VTextView)
 
 - (void)attachmentDrawInRect:(CGRect)rect {
-    CGContextRef contextRef = UIGraphicsGetCurrentContext();
-    CGContextTranslateCTM(contextRef, rect.origin.x, rect.origin.y+20.f/*self.size.height*/);
-    CGContextScaleCTM(contextRef, 1, -1);
-    CGContextTranslateCTM(contextRef, -rect.origin.x, -rect.origin.y);
+//    CGContextRef contextRef = UIGraphicsGetCurrentContext();
+//    CGContextTranslateCTM(contextRef, rect.origin.x, rect.origin.y+20.f/*self.size.height*/);
+//    CGContextScaleCTM(contextRef, 1, -1);
+//    CGContextTranslateCTM(contextRef, -rect.origin.x, -rect.origin.y);
     [self drawInRect:rect];
 }
 

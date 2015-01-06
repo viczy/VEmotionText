@@ -15,6 +15,8 @@
 #import "VContentView.h"
 #import "VTextAttachment.h"
 #import "VCaretView.h"
+#import "VTextPostion.h"
+#import "VTextRange.h"
 
 static NSString *const vLeftDelimiter = @"\\[";
 static NSString *const vRightDelimiter = @"\\]";
@@ -70,7 +72,6 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 @property (nonatomic, strong) VCaretView *caretView;
 
 - (void)common;
-- (BOOL)hasText;
 - (void)textChanged;
 
 - (CGFloat)boundingHeightForWidth:(CGFloat)width;
@@ -78,18 +79,13 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (CGRect)vFirstRectForRange:(NSRange)range;
 - (NSInteger)closestIndexToPoint:(CGPoint)point;
 - (NSRange)vCharacterRangeAtPoint:(CGPoint)point;
+- (NSRange)characterRangeAtIndex:(NSInteger)index;
 - (void)checkSpellingForRange:(NSRange)range;
 - (void)removeCorrectionAttributesForRange:(NSRange)range;
 - (void)insertCorrectionAttributesForRange:(NSRange)range;
 - (void)showCorrectionMenuForRange:(NSRange)range;
-- (void)scanAttachments;
 - (void)showMenu;
 - (CGRect)menuPresentationRect;
-
-//NSAttributedstring <-> NSString
-- (NSAttributedString*)converStringToAttributedString:(NSString*)string;
-- (NSString*)converAttributedStringToString:(NSAttributedString*)attributedString;
-
 
 //Layout
 - (void)drawContentInRect:(CGRect)rect;
@@ -103,8 +99,12 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
 
 //Data Detectors
+- (void)scanAttachments;
 - (void)checkLinksForRange:(NSRange)range;
 
+//NSAttributedstring <-> NSString
+- (NSAttributedString*)converStringToAttributedString:(NSString*)string;
+- (NSString*)converAttributedStringToString:(NSAttributedString*)attributedString;
 
 
 @end
@@ -236,16 +236,11 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
 - (void)setText:(NSString *)text {
     [self.inputDelegate textWillChange:self];
-    NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:text
-                                                                 attributes:self.currentAttributes];
+    NSAttributedString *attributedString = [self converStringToAttributedString:text];
+//    NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:text
+//                                                                 attributes:self.currentAttributes];
     self.attributedString = attributedString;
     [self.inputDelegate textDidChange:self];
-}
-
-- (void)setEmotionText:(NSString *)emotionText {
-    _emotionText = emotionText;
-    NSAttributedString *attributedString = [self converStringToAttributedString:emotionText];
-    self.attributedString = attributedString;
 }
 
 - (void)setAttributedString:(NSAttributedString *)attributedString {
@@ -253,7 +248,6 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     NSRange stringRange = NSMakeRange(0, attributedString.length);
     if (!_editing && !_editable) {
         [self checkLinksForRange:stringRange];
-        [self scanAttachments];
     }
 
     [self textChanged];
@@ -278,7 +272,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 #pragma mark Layout
 
 - (void)drawContentInRect:(CGRect)rect {
-    UIColor *fillColor = [UIColor colorWithRed:.8f green:.8f blue:.8f alpha:1.f];
+    UIColor *fillColor = [UIColor whiteColor];
     [fillColor setFill];
     [self drawBoundingRangeAsSelection:self.linkRange cornerRadius:2.f];
     [[UIColor vSelectionColor] setFill];
@@ -414,7 +408,8 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 #pragma mark - Actions Private
 
 - (void)common {
-    _editable = YES;
+    _editable = NO;
+    _editing = NO;
     _font = [UIFont systemFontOfSize:17];
     _autocorrectionType = UITextAutocorrectionTypeNo;
     _dataDetectorTypes = UIDataDetectorTypeLink;
@@ -424,11 +419,6 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     [self addSubview:self.contentView];
     self.text = @"";
 }
-
-- (BOOL)hasText {
-    return self.attributedString.length != 0;
-}
-
 - (void)textChanged {
     if ([[UIMenuController sharedMenuController] isMenuVisible]) {
         [[UIMenuController sharedMenuController] setMenuVisible:NO];
@@ -474,8 +464,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 }
 
 #pragma mark - Actions Private
-#pragma mark NSString-NSAttributedString
-
+#pragma mark NSString<->NSAttributedString
 
 - (NSAttributedString*)converStringToAttributedString:(NSString *)string {
     NSError *error;
@@ -564,61 +553,450 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
 - (void)checkLinksForRange:(NSRange)range {
     NSMutableDictionary *linkAttributes = [NSMutableDictionary dictionaryWithDictionary:self.currentAttributes];
-    [linkAttributes setObject:(id)[UIColor blueColor].CGColor
+    [linkAttributes setObject:(id)[UIColor vLinkColor].CGColor
                        forKey:(NSString*)kCTForegroundColorAttributeName];
     [linkAttributes setObject:(id)[NSNumber numberWithInt:(int)kCTUnderlineStyleSingle]
                        forKey:(NSString*)kCTUnderlineStyleAttributeName];
 
-    NSMutableAttributedString *string = [_attributedString mutableCopy];
+    NSMutableAttributedString *mutableAttributedString = [[NSMutableAttributedString alloc] initWithAttributedString:self.attributedString];
     NSError *error = nil;
     NSDataDetector *linkDetector = [NSDataDetector dataDetectorWithTypes:NSTextCheckingTypeLink
                                                                    error:&error];
-    [linkDetector enumerateMatchesInString:[string string]
+    [linkDetector enumerateMatchesInString:[mutableAttributedString string]
                                    options:0
                                      range:range
                                 usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) {
 
                                     if ([result resultType] == NSTextCheckingTypeLink) {
-                                        [string addAttributes:linkAttributes range:[result range]];
+                                        [mutableAttributedString addAttributes:linkAttributes range:[result range]];
                                     }
 
                                 }];
 
-    if (![self.attributedString isEqualToAttributedString:string]) {
-        self.attributedString = string;
+    if (![self.attributedString isEqualToAttributedString:mutableAttributedString]) {
+        self.attributedString = mutableAttributedString;
     }
 }
 
 - (void)scanAttachments
 {
-    __block NSMutableAttributedString *mutableAttributedString;
+    NSMutableAttributedString *mutableAttributedString = [[NSMutableAttributedString alloc] initWithAttributedString:self.attributedString];
     NSRange stringRange = NSMakeRange(0, self.attributedString.length);
     [self.attributedString enumerateAttribute: vTextAttachmentAttributeName
-                                  inRange: stringRange
-                                  options: 0
-                               usingBlock: ^(id value, NSRange range, BOOL *stop) {
-                                   if (value != nil) {
-                                       if (mutableAttributedString == nil)
-                                           mutableAttributedString = [[NSMutableAttributedString alloc] initWithAttributedString:self.attributedString];
-                                       CTRunDelegateCallbacks callbacks = {
-                                           .version = kCTRunDelegateVersion1,
-                                           .dealloc = AttachmentRunDelegateDealloc,
-                                           .getAscent = AttachmentRunDelegateGetAscent,
-                                           .getDescent = AttachmentRunDelegateGetDescent,
-                                           .getWidth = AttachmentRunDelegateGetWidth
-                                       };
+                                      inRange: stringRange
+                                      options: 0
+                                   usingBlock: ^(id value, NSRange range, BOOL *stop) {
+                                       if (value != nil) {
+                                           CTRunDelegateCallbacks callbacks = {
+                                               .version = kCTRunDelegateVersion1,
+                                               .dealloc = AttachmentRunDelegateDealloc,
+                                               .getAscent = AttachmentRunDelegateGetAscent,
+                                               .getDescent = AttachmentRunDelegateGetDescent,
+                                               .getWidth = AttachmentRunDelegateGetWidth
+                                           };
 
-                                       // the retain here is balanced by the release in the Dealloc function
-                                       CTRunDelegateRef runDelegate = CTRunDelegateCreate(&callbacks, (__bridge void *)(value));
-                                       [mutableAttributedString addAttribute: (NSString *)kCTRunDelegateAttributeName
-                                                                       value: (id)CFBridgingRelease(runDelegate)
-                                                                       range:range];
-                                       CFRelease(runDelegate);
-                                   }
-                               }];
+                                           // the retain here is balanced by the release in the Dealloc function
+                                           CTRunDelegateRef runDelegate = CTRunDelegateCreate(&callbacks, (__bridge void *)(value));
+                                           [mutableAttributedString addAttribute: (NSString *)kCTRunDelegateAttributeName
+                                                                           value: (id)CFBridgingRelease(runDelegate)
+                                                                           range:range];
+                                           CFRelease(runDelegate);
+                                       }
+                                   }];
 
-    self.attributedString = mutableAttributedString;
+    if (![self.attributedString isEqualToAttributedString:mutableAttributedString]) {
+        self.attributedString = mutableAttributedString;
+    }
 }
+
+
+#pragma mark - UITextInput
+#pragma mark - Position & Range & Direction & Rect
+
+- (UITextRange*)textRangeFromPosition:(UITextPosition *)fromPosition toPosition:(UITextPosition *)toPosition {
+    VTextPostion *from = (VTextPostion *)fromPosition;
+    VTextPostion *to = (VTextPostion *)toPosition;
+    NSRange range = NSMakeRange(MIN(from.index, to.index), ABS(to.index - from.index));
+    return [VTextRange instanceWithRange:range];
+}
+
+- (UITextRange *)characterRangeByExtendingPosition:(UITextPosition *)position inDirection:(UITextLayoutDirection)direction {
+    VTextPostion *vPosition = (VTextPostion *)position;
+    NSRange range = NSMakeRange(vPosition.index, 1);
+
+    switch (direction) {
+        case UITextLayoutDirectionUp:
+        case UITextLayoutDirectionLeft:
+            range = NSMakeRange(vPosition.index - 1, 1);
+            break;
+        case UITextLayoutDirectionRight:
+        case UITextLayoutDirectionDown:
+            range = NSMakeRange(vPosition.index, 1);
+            break;
+    }
+
+    return [VTextRange instanceWithRange:range];
+}
+
+- (UITextRange*)characterRangeAtPoint:(CGPoint)point {
+    VTextRange *range = [VTextRange instanceWithRange:[self vCharacterRangeAtPoint:point]];
+    return range;
+}
+
+- (UITextPosition*)beginningOfDocument {
+    return [VTextPostion instanceWithIndex:0];
+}
+
+- (UITextPosition*)endOfDocument {
+    return [VTextPostion instanceWithIndex:self.attributedString.length];
+}
+
+- (UITextPosition*)positionFromPosition:(UITextPosition *)position offset:(NSInteger)offset {
+    VTextPostion *vPosition = (VTextPostion *)position;
+    NSInteger end = vPosition.index + offset;
+    if (end > self.attributedString.length || end < 0) {
+        return nil;
+    }else {
+        return [VTextPostion instanceWithIndex:end];
+    }
+}
+
+- (UITextPosition*)closestPositionToPoint:(CGPoint)point {
+    VTextPostion *position = [VTextPostion instanceWithIndex:[self closestIndexToPoint:point]];
+    return position;
+}
+
+- (UITextPosition*)closestPositionToPoint:(CGPoint)point withinRange:(UITextRange *)range {
+    VTextPostion *position = [VTextPostion instanceWithIndex:[self closestIndexToPoint:point]];
+    return position;
+}
+
+
+- (UITextPosition*)positionFromPosition:(UITextPosition *)position inDirection:(UITextLayoutDirection)direction offset:(NSInteger)offset {
+    VTextPostion *vPosition = (VTextPostion *)position;
+    NSInteger vIndex = vPosition.index;
+    switch (direction) {
+        case UITextLayoutDirectionRight: {
+            vIndex += offset;
+            break;
+        }
+
+        case UITextLayoutDirectionLeft: {
+            vIndex -= offset;
+            break;
+        }
+
+        UITextLayoutDirectionUp:
+        UITextLayoutDirectionDown:
+        default:
+            break;
+    }
+
+    vIndex = vIndex < 0 ? 0: vIndex;
+    vIndex = vIndex > self.attributedString.length ? self.attributedString.length : vIndex;
+
+    return [VTextPostion instanceWithIndex:vIndex];
+}
+
+- (UITextPosition *)positionWithinRange:(UITextRange *)range farthestInDirection:(UITextLayoutDirection)direction {
+    VTextRange *vRange = (VTextRange *)range;
+    NSInteger location = vRange.range.location;
+    switch (direction) {
+        case UITextLayoutDirectionUp:
+        case UITextLayoutDirectionLeft:
+            location = vRange.range.location;
+            break;
+        case UITextLayoutDirectionRight:
+        case UITextLayoutDirectionDown:
+            location = vRange.range.location + vRange.range.length;
+            break;
+    }
+    return [VTextPostion instanceWithIndex:location];
+}
+
+- (NSComparisonResult)comparePosition:(UITextPosition *)position toPosition:(UITextPosition *)other {
+    VTextPostion *vPosition = (VTextPostion *)position;
+    VTextPostion *vOther = (VTextPostion *)other;
+    if (vPosition.index == vOther.index) {
+        return NSOrderedSame;
+    }else if (vPosition.index < vOther.index) {
+        return NSOrderedAscending;
+    } else {
+        return NSOrderedDescending;
+    }
+}
+
+- (NSInteger)offsetFromPosition:(UITextPosition *)from toPosition:(UITextPosition *)toPosition {
+    VTextPostion *vFrom = (VTextPostion *)from;
+    VTextPostion *vTo = (VTextPostion *)toPosition;
+    return (vTo.index - vFrom.index);
+}
+
+- (UITextWritingDirection)baseWritingDirectionForPosition:(UITextPosition *)position inDirection:(UITextStorageDirection)direction {
+    return UITextWritingDirectionLeftToRight;
+}
+
+- (void)setBaseWritingDirection:(UITextWritingDirection)writingDirection forRange:(UITextRange *)range {
+    //
+}
+
+- (CGRect)firstRectForRange:(UITextRange *)range {
+    VTextRange *vRange = (VTextRange *)range;
+    return [self vFirstRectForRange:vRange.range];
+}
+
+- (CGRect)caretRectForPosition:(UITextPosition *)position {
+    VTextPostion *vPosition = (VTextPostion *)position;
+    return [self caretRectForIndex:vPosition.index];
+}
+
+#pragma mark - UITextInput
+#pragma mark - Marked & Selected
+
+- (UITextRange *)selectedTextRange {
+    return [VTextRange instanceWithRange:self.selectedRange];
+}
+
+- (UITextRange *)markedTextRange {
+    return [VTextRange instanceWithRange:self.markedRange];
+}
+
+- (void)setSelectedTextRange:(UITextRange *)range {
+    VTextRange *vRange = (VTextRange *)range;
+    self.selectedRange = vRange.range;
+}
+
+- (NSArray *)selectionRectsForRange:(UITextRange *)range
+{
+    NSMutableArray *pathRects = [[NSMutableArray alloc] init];
+    NSArray *lines = (NSArray*)CTFrameGetLines(self.frameRef);
+    CGPoint *origins = (CGPoint*)malloc([lines count] * sizeof(CGPoint));
+    CTFrameGetLineOrigins(self.frameRef, CFRangeMake(0, [lines count]), origins);
+    NSInteger count = [lines count];
+
+    for (int i = 0; i < count; i++) {
+        CTLineRef line = (__bridge CTLineRef) [lines objectAtIndex:i];
+        CFRange lineRange = CTLineGetStringRange(line);
+        NSRange range1 = NSMakeRange(lineRange.location==kCFNotFound ? NSNotFound : lineRange.location, lineRange.length);
+        NSRange intersection = [self rangeIntersection:range1 withSecond:((VTextRange*)range).range];
+        if (intersection.location != NSNotFound && intersection.length > 0) {
+            CGFloat xStart = CTLineGetOffsetForStringIndex(line, intersection.location, NULL);
+            CGFloat xEnd = CTLineGetOffsetForStringIndex(line, intersection.location + intersection.length, NULL);
+            CGPoint origin = origins[i];
+            CGFloat ascent, descent;
+            CTLineGetTypographicBounds(line, &ascent, &descent, NULL);
+            CGRect selectionRect = CGRectMake(origin.x + xStart, origin.y - descent, xEnd - xStart, ascent + descent);
+            if (((VTextRange*)range).range.length==1) {
+                selectionRect.size.width = self.contentView.bounds.size.width;
+            }
+            [pathRects addObject:[NSValue valueWithCGRect:selectionRect]];
+
+        }
+    }
+    free(origins);
+    return pathRects;
+}
+
+- (void)setMarkedText:(NSString *)markedText
+        selectedRange:(NSRange)selectedRange {
+
+    NSRange selectedNSRange = self.selectedRange;
+    NSRange markedTextRange = self.markedRange;
+    if (markedTextRange.location != NSNotFound) {
+        if (!markedText.length > 0) {
+             markedText = @"";
+        }
+        [self.mutableAttributeString replaceCharactersInRange:markedTextRange withString:markedText];
+        markedTextRange.length = markedText.length;
+    } else if (selectedNSRange.length > 0) {
+        [self.mutableAttributeString replaceCharactersInRange:selectedNSRange withString:markedText];
+        markedTextRange.location = selectedNSRange.location;
+        markedTextRange.length = markedText.length;
+    } else {
+        NSAttributedString *string = [[NSAttributedString alloc] initWithString:markedText
+                                                                     attributes:self.currentAttributes];
+        [self.mutableAttributeString insertAttributedString:string
+                                                    atIndex:selectedNSRange.location];
+        markedTextRange.location = selectedNSRange.location;
+        markedTextRange.length = markedText.length;
+    }
+    selectedNSRange = NSMakeRange(selectedRange.location + markedTextRange.location, selectedRange.length);
+    self.attributedString = self.mutableAttributeString;
+    self.markedRange = markedTextRange;
+    self.selectedRange = selectedNSRange;
+}
+
+- (void)unmarkText {
+    NSRange markedTextRange = self.markedRange;
+    if (markedTextRange.location == NSNotFound) {
+        return;
+    }
+    markedTextRange.location = NSNotFound;
+    self.markedRange = markedTextRange;
+}
+
+#pragma mark - UITextInput
+#pragma mark - Replace & Return
+
+- (void)replaceRange:(UITextRange *)range withText:(NSString *)text {
+    VTextRange *vRange = (VTextRange*)range;
+    NSRange selRange = self.selectedRange;
+    if (vRange.range.location+vRange.range.length <= selRange.location) {
+        selRange.location -= (vRange.range.length - text.length);
+    }else {
+        selRange = [self rangeIntersection:vRange.range withSecond:self.selectedRange];
+    }
+    [self.mutableAttributeString replaceCharactersInRange:vRange.range withString:text];
+    self.attributedString = self.mutableAttributeString;
+    self.selectedRange = selRange;
+}
+
+- (NSString*)textInRange:(UITextRange *)range {
+    VTextRange *vRange = (VTextRange*)range;
+    return [self.attributedString.string substringWithRange:vRange.range];
+}
+
+- (NSDictionary*)textStylingAtPosition:(UITextPosition *)position
+                           inDirection:(UITextStorageDirection)direction {
+
+    VTextPostion *vPosition = (VTextPostion*)position;
+    NSInteger index = MAX(vPosition.index, 0);
+    index = MIN(index, self.attributedString.length-1);
+
+    NSDictionary *attribs = [self.attributedString attributesAtIndex:index effectiveRange:nil];
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:1];
+
+    CTFontRef ctFont = (__bridge CTFontRef)[attribs valueForKey:(NSString*)kCTFontAttributeName];
+    UIFont *font = [UIFont fontWithName:(NSString*)CFBridgingRelease(CTFontCopyFamilyName(ctFont)) size:CTFontGetSize(ctFont)];
+
+    double version = [[UIDevice currentDevice].systemVersion doubleValue];
+    if(version>=8.0f){
+        [dictionary setObject:font forKey:NSFontAttributeName];
+    }else {
+        [dictionary setObject:font forKey:UITextInputTextFontKey];
+    }
+
+    return dictionary;
+
+}
+
+- (UIView *)textInputView {
+    return self.contentView;
+}
+
+- (BOOL)hasText {
+    return self.attributedString.length != 0;
+}
+
+
+- (void)insertText:(NSString *)text {
+    NSRange selectedNSRange = self.selectedRange;
+    NSRange markedTextRange = self.markedRange;
+
+    [self.mutableAttributeString setAttributedString:self.attributedString];
+    NSAttributedString *newString = nil;
+    if (text.length < 3) {
+        newString = [[NSAttributedString alloc] initWithString:text
+                                                    attributes:self.currentAttributes];
+    }else {
+        newString = [self converStringToAttributedString:text];
+    }
+
+    if (self.correctionRange.location != NSNotFound && self.correctionRange.length > 0){
+        [self.mutableAttributeString replaceCharactersInRange:self.correctionRange
+                                      withAttributedString:newString];
+        selectedNSRange.length = 0;
+        selectedNSRange.location = (self.correctionRange.location+text.length);
+        self.correctionRange = NSMakeRange(NSNotFound, 0);
+
+    } else if (markedTextRange.location != NSNotFound) {
+
+        [self.mutableAttributeString replaceCharactersInRange:markedTextRange
+                                      withAttributedString:newString];
+        selectedNSRange.location = markedTextRange.location + newString.length;
+        selectedNSRange.length = 0;
+        markedTextRange = NSMakeRange(NSNotFound, 0);
+
+    } else if (selectedNSRange.length > 0) {
+
+        [self.mutableAttributeString replaceCharactersInRange:selectedNSRange
+                                      withAttributedString:newString];
+        selectedNSRange.length = 0;
+        selectedNSRange.location = (selectedNSRange.location + newString.length);
+
+    } else {
+
+        [self.mutableAttributeString insertAttributedString:newString
+                                                 atIndex:selectedNSRange.location];
+        selectedNSRange.location += newString.length;
+    }
+
+    self.attributedString = self.mutableAttributeString;
+    self.markedRange = markedTextRange;
+    self.selectedRange = selectedNSRange;
+
+    if ([text isEqualToString:@" "] || [text isEqualToString:@"\n"]) {
+        [self checkSpellingForRange:[self characterRangeAtIndex:self.selectedRange.location-1]];
+        if (self.dataDetectorTypes & UIDataDetectorTypeLink)
+            [self checkLinksForRange:NSMakeRange(0, self.attributedString.length)];
+    }
+}
+
+- (void)deleteBackward  {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self
+                                             selector:@selector(showCorrectionMenuWithoutSelection)
+                                               object:nil];
+    NSRange selectedNSRange = self.selectedRange;
+    NSRange markedTextRange = self.markedRange;
+
+    [self.mutableAttributeString setAttributedString:self.attributedString];
+
+    if (self.correctionRange.location != NSNotFound && _correctionRange.length > 0) {
+        [self.mutableAttributeString beginEditing];
+        [self.mutableAttributeString deleteCharactersInRange:self.correctionRange];
+        [self.mutableAttributeString endEditing];
+        self.correctionRange = NSMakeRange(NSNotFound, 0);
+        selectedNSRange.length = 0;
+    } else if (markedTextRange.location != NSNotFound) {
+
+        [self.mutableAttributeString beginEditing];
+        [self.mutableAttributeString deleteCharactersInRange:selectedNSRange];
+        [self.mutableAttributeString endEditing];
+        selectedNSRange.location = markedTextRange.location;
+        selectedNSRange.length = 0;
+        markedTextRange = NSMakeRange(NSNotFound, 0);
+
+    } else if (selectedNSRange.length > 0) {
+
+        [self.mutableAttributeString beginEditing];
+        [self.mutableAttributeString deleteCharactersInRange:selectedNSRange];
+        [self.mutableAttributeString endEditing];
+        selectedNSRange.length = 0;
+
+    } else if (selectedNSRange.location > 0) {
+
+        NSInteger index = MAX(0, selectedNSRange.location-1);
+        index = MIN(_attributedString.length-1, index);
+        if ([_attributedString.string characterAtIndex:index] == ' ') {
+            [self performSelector:@selector(showCorrectionMenuWithoutSelection)
+                       withObject:nil
+                       afterDelay:0.2f];
+        }
+
+        selectedNSRange.location--;
+        selectedNSRange.length = 1;
+        [self.mutableAttributeString beginEditing];
+        [self.mutableAttributeString deleteCharactersInRange:selectedNSRange];
+        [self.mutableAttributeString endEditing];
+        selectedNSRange.length = 0;
+
+    }
+
+    self.attributedString = self.mutableAttributeString;
+    self.markedRange = markedTextRange;
+    self.selectedRange = selectedNSRange;
+}
+
 
 #pragma mark - Delegate
 #pragma mark ContentViewDelegate

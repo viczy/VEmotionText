@@ -21,12 +21,12 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.vTextView = [[VTextView alloc] initWithFrame:CGRectMake(0.f, 100.f, self.view.bounds.size.width, 300.f)];
+    self.vTextView = [[VTextView alloc] initWithFrame:CGRectMake(10.f, 100.f, 300.f, 300.f)];
     self.vTextView.backgroundColor = [UIColor purpleColor];
     NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"Emotion" ofType:@"plist"];
     NSDictionary *dictionary = [[NSDictionary alloc] initWithContentsOfFile:plistPath];
     self.vTextView.textImageMapping = dictionary;
-    self.vTextView.emotionText = @"测试[高兴]并且也有点[生气],测试[高兴]并且也有点[生气]";
+    self.vTextView.text = @"测试[高兴]并且也有点[生气],测试[高兴]并且也有点[生气]测试[高兴]并且也有点[生气],测试[高兴]并且也有点[生气]http://12345.com";
 
     [self.view addSubview:self.vTextView];
 }

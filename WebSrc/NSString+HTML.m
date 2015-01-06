@@ -61,7 +61,12 @@
     NSString *regex = @"\\[[a-zA-Z0-9\\u4e00-\\u9fa5]+\\]";
     NSArray *array = [self componentsMatchedByRegex:regex];
     for (NSString *match in array) {
-        NSString *matchPath = [[self class] emotionUrl:match];
+        NSString *emotion;
+        if (match.length > 2) {
+            emotion = [match substringWithRange:NSMakeRange(1, match.length-2)];
+        }
+
+        NSString *matchPath = [[self class] emotionUrl:emotion];
         NSString *link = [NSString stringWithFormat:@"<img src = 'file://%@' width='16' height='16'>", matchPath];
         emotionDone = [emotionDone stringByReplacingOccurrencesOfString:match withString:link];
     }
