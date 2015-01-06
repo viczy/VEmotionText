@@ -80,9 +80,6 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (NSInteger)closestIndexToPoint:(CGPoint)point;
 - (NSRange)vCharacterRangeAtPoint:(CGPoint)point;
 - (NSRange)characterRangeAtIndex:(NSInteger)index;
-- (void)checkSpellingForRange:(NSRange)range;
-- (void)removeCorrectionAttributesForRange:(NSRange)range;
-- (void)insertCorrectionAttributesForRange:(NSRange)range;
 - (void)showCorrectionMenuForRange:(NSRange)range;
 - (void)showMenu;
 - (CGRect)menuPresentationRect;
@@ -97,14 +94,24 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
 //Layout selection
 
+- (void)selectionChanged;
+
 
 //Data Detectors
 - (void)scanAttachments;
 - (void)checkLinksForRange:(NSRange)range;
+- (NSTextCheckingResult*)linkAtIndex:(NSInteger)index;
+- (BOOL)selectedLinkAtIndex:(NSInteger)index;
+
 
 //NSAttributedstring <-> NSString
 - (NSAttributedString*)converStringToAttributedString:(NSString*)string;
 - (NSString*)converAttributedStringToString:(NSAttributedString*)attributedString;
+
+//Input spell checking
+- (void)checkSpellingForRange:(NSRange)range;
+- (void)removeCorrectionAttributesForRange:(NSRange)range;
+- (void)insertCorrectionAttributesForRange:(NSRange)range;
 
 
 @end
@@ -387,24 +394,6 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     CGPathRelease(path);
 }
 
-#pragma mark - View
-#pragma mark Layout Range
-
-- (NSRange)rangeIntersection:(NSRange)first withSecond:(NSRange)second {
-    NSRange result = NSMakeRange(NSNotFound, 0);
-    if (first.location > second.location) {
-        NSRange tmp = first;
-        first = second;
-        second = tmp;
-    }
-    if (second.location < first.location + first.length) {
-        result.location = second.location;
-        NSUInteger end = MIN(first.location + first.length, second.location + second.length);
-        result.length = end - result.location;
-    }
-    return result;
-}
-
 #pragma mark - Actions Private
 
 - (void)common {
@@ -461,6 +450,78 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (CGFloat)boundingHeightForWidth:(CGFloat)width {
     CGSize suggestedSize = CTFramesetterSuggestFrameSizeWithConstraints(self.framesetterRef, CFRangeMake(0, 0), NULL, CGSizeMake(width, CGFLOAT_MAX), NULL);
     return suggestedSize.height;
+}
+
+#pragma mark - Actions Private
+#pragma mark Layout Range
+
+- (NSRange)rangeIntersection:(NSRange)first withSecond:(NSRange)second {
+    NSRange result = NSMakeRange(NSNotFound, 0);
+    if (first.location > second.location) {
+        NSRange tmp = first;
+        first = second;
+        second = tmp;
+    }
+    if (second.location < first.location + first.length) {
+        result.location = second.location;
+        NSUInteger end = MIN(first.location + first.length, second.location + second.length);
+        result.length = end - result.location;
+    }
+    return result;
+}
+
+
+#pragma mark - Actions Private
+#pragma mark - Spell
+
+- (void)insertCorrectionAttributesForRange:(NSRange)range {
+    NSMutableAttributedString *mutableAttributedString = [[NSMutableAttributedString alloc] initWithAttributedString:self.attributedString];
+    [mutableAttributedString addAttributes:self.correctionAttributes range:range];
+    self.attributedString = mutableAttributedString;
+}
+
+- (void)removeCorrectionAttributesForRange:(NSRange)range {
+    NSMutableAttributedString *mutableAttributedString = [[NSMutableAttributedString alloc] initWithAttributedString:self.attributedString];
+    [mutableAttributedString removeAttribute:(NSString*)kCTUnderlineStyleAttributeName range:range];
+    self.attributedString = mutableAttributedString;
+}
+
+- (void)checkSpellingForRange:(NSRange)range {
+    [self.mutableAttributeString setAttributedString:self.attributedString];
+
+    NSInteger location = range.location-1;
+    NSInteger currentOffset = MAX(0, location);
+    NSRange currentRange;
+    NSString *string = self.attributedString.string;
+    NSRange stringRange = NSMakeRange(0, string.length-1);
+    NSArray *guesses;
+    BOOL done = NO;
+
+    NSString *language = [[UITextChecker availableLanguages] objectAtIndex:0];
+    if (!language) {
+        language = @"en_US";
+    }
+
+    while (!done) {
+        currentRange = [self.textChecker rangeOfMisspelledWordInString:string
+                                                                 range:stringRange
+                                                            startingAt:currentOffset
+                                                                  wrap:NO
+                                                              language:language];
+        if (currentRange.location == NSNotFound || currentRange.location > range.location) {
+            done = YES;
+            continue;
+        }
+        guesses = [self.textChecker guessesForWordRange:currentRange inString:string language:language];
+        if (guesses) {
+            [self.mutableAttributeString addAttributes:self.correctionAttributes range:currentRange];
+        }
+        currentOffset = currentOffset + (currentRange.length-1);
+    }
+
+    if (![self.attributedString isEqualToAttributedString:self.mutableAttributeString]) {
+        self.attributedString = self.mutableAttributeString;
+    }
 }
 
 #pragma mark - Actions Private
@@ -551,32 +612,6 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 #pragma mark - Actions Private
 #pragma mark - Data Detectors
 
-- (void)checkLinksForRange:(NSRange)range {
-    NSMutableDictionary *linkAttributes = [NSMutableDictionary dictionaryWithDictionary:self.currentAttributes];
-    [linkAttributes setObject:(id)[UIColor vLinkColor].CGColor
-                       forKey:(NSString*)kCTForegroundColorAttributeName];
-    [linkAttributes setObject:(id)[NSNumber numberWithInt:(int)kCTUnderlineStyleSingle]
-                       forKey:(NSString*)kCTUnderlineStyleAttributeName];
-
-    NSMutableAttributedString *mutableAttributedString = [[NSMutableAttributedString alloc] initWithAttributedString:self.attributedString];
-    NSError *error = nil;
-    NSDataDetector *linkDetector = [NSDataDetector dataDetectorWithTypes:NSTextCheckingTypeLink
-                                                                   error:&error];
-    [linkDetector enumerateMatchesInString:[mutableAttributedString string]
-                                   options:0
-                                     range:range
-                                usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) {
-
-                                    if ([result resultType] == NSTextCheckingTypeLink) {
-                                        [mutableAttributedString addAttributes:linkAttributes range:[result range]];
-                                    }
-
-                                }];
-
-    if (![self.attributedString isEqualToAttributedString:mutableAttributedString]) {
-        self.attributedString = mutableAttributedString;
-    }
-}
 
 - (void)scanAttachments
 {
@@ -609,6 +644,61 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     }
 }
 
+- (void)checkLinksForRange:(NSRange)range {
+    NSMutableDictionary *linkAttributes = [NSMutableDictionary dictionaryWithDictionary:self.currentAttributes];
+    [linkAttributes setObject:(id)[UIColor vLinkColor].CGColor
+                       forKey:(NSString*)kCTForegroundColorAttributeName];
+    [linkAttributes setObject:(id)[NSNumber numberWithInt:(int)kCTUnderlineStyleSingle]
+                       forKey:(NSString*)kCTUnderlineStyleAttributeName];
+
+    NSMutableAttributedString *mutableAttributedString = [[NSMutableAttributedString alloc] initWithAttributedString:self.attributedString];
+    NSError *error = nil;
+    NSDataDetector *linkDetector = [NSDataDetector dataDetectorWithTypes:NSTextCheckingTypeLink
+                                                                   error:&error];
+    [linkDetector enumerateMatchesInString:[mutableAttributedString string]
+                                   options:0
+                                     range:range
+                                usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) {
+
+                                    if ([result resultType] == NSTextCheckingTypeLink) {
+                                        [mutableAttributedString addAttributes:linkAttributes range:[result range]];
+                                    }
+
+                                }];
+
+    if (![self.attributedString isEqualToAttributedString:mutableAttributedString]) {
+        self.attributedString = mutableAttributedString;
+    }
+}
+
+- (NSTextCheckingResult*)linkAtIndex:(NSInteger)index {
+    NSRange range = [self characterRangeAtIndex:index];
+    if (range.location==NSNotFound || range.length == 0) {
+        return nil;
+    }
+
+    __block NSTextCheckingResult *link = nil;
+    NSError *error = nil;
+    NSDataDetector *linkDetector = [NSDataDetector dataDetectorWithTypes:NSTextCheckingTypeLink error:&error];
+    [linkDetector enumerateMatchesInString:[self.attributedString string] options:0 range:range usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) {
+        if ([result resultType] == NSTextCheckingTypeLink) {
+            *stop = YES;
+            link = link;
+        }
+    }];
+
+    return link;
+}
+
+- (BOOL)selectedLinkAtIndex:(NSInteger)index {
+    NSTextCheckingResult *link = [self linkAtIndex:index];
+    if (link) {
+        [self setLinkRange:[link range]];
+        return YES;
+    }else {
+        return NO;
+    }
+}
 
 #pragma mark - UITextInput
 #pragma mark - Position & Range & Direction & Rect
@@ -995,6 +1085,181 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     self.attributedString = self.mutableAttributeString;
     self.markedRange = markedTextRange;
     self.selectedRange = selectedNSRange;
+}
+
+
+#pragma mark - UIResponder
+#pragma mark - Become & Resign
+
+- (BOOL)canBecomeFirstResponder {
+    BOOL shouldBeginEditing = [self.delegate respondsToSelector:@selector(vTextviewShouldBeginEditing:)];
+    if (_editable && shouldBeginEditing) {
+        return [self.delegate vTextviewShouldBeginEditing:self];
+    }else {
+        return YES;
+    }
+
+}
+
+- (BOOL)becomeFirstResponder {
+    BOOL didBeginEditing = [self.delegate respondsToSelector:@selector(vTextviewDidBeginEditing:)];
+    if (_editable) {
+        _editing = YES;
+        if (didBeginEditing) {
+            [self.delegate vTextviewDidBeginEditing:self];
+        }
+        [self selectionChanged];
+    }
+    return [super becomeFirstResponder];
+}
+
+- (BOOL)canResignFirstResponder {
+    BOOL shouldEndEditing = [self.delegate respondsToSelector:@selector(vTextviewShouldEndEditing:)];
+    if (_editable && shouldEndEditing) {
+        return [self.delegate vTextviewShouldEndEditing:self];
+    }else {
+        return YES;
+    }
+}
+
+- (BOOL)resignFirstResponder {
+    BOOL didEndEditing = [self.delegate respondsToSelector:@selector(vTextviewDidEndEditing:)];
+    if (_editable) {
+        _editing = NO;
+        if (didEndEditing) {
+            [self.delegate vTextviewDidEndEditing:self];
+        }
+        [self selectionChanged];
+    }
+    return [super resignFirstResponder];
+}
+
+#pragma mark - UIResponder
+#pragma mark - Menu Actions
+
+- (BOOL)canPerformAction:(SEL)action withSender:(id)sender {
+
+    if (self.correctionRange.length>0 || _ignoreSelectionMenu) {
+        if ([NSStringFromSelector(action) hasPrefix:@"spellCheckMenu"]) {
+            return YES;
+        }
+        return NO;
+    }
+
+    if (action==@selector(cut:)) {
+        return (_selectedRange.length>0 && _editing);
+    } else if (action==@selector(copy:)) {
+        return ((_selectedRange.length>0));
+    } else if ((action == @selector(select:) || action == @selector(selectAll:))) {
+        return (_selectedRange.length==0 && [self hasText]);
+    } else if (action == @selector(paste:)) {
+        return (_editing && [[UIPasteboard generalPasteboard] string].length > 0);
+    } else if (action == @selector(delete:)) {
+        return (_selectedRange.length>0 && _editing);
+    }
+
+    return [super canPerformAction:action withSender:sender];
+
+}
+
+- (void)paste:(id)sender {
+
+    NSString *pasteText = [[UIPasteboard generalPasteboard] string];
+
+    if (pasteText!=nil) {
+        [self insertText:pasteText];
+    }
+
+}
+
+- (void)selectAll:(id)sender {
+
+    NSString *string = [_attributedString string];
+    NSString *trimmedString = [string stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    self.selectedRange = [_attributedString.string rangeOfString:trimmedString];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(menuDidHide:) name:UIMenuControllerDidHideMenuNotification object:nil];
+
+}
+
+- (void)select:(id)sender {
+
+    NSRange range = [self characterRangeAtPoint_:_caretView.center];
+    self.selectedRange = range;
+
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(menuDidHide:) name:UIMenuControllerDidHideMenuNotification object:nil];
+
+}
+
+- (void)cut:(id)sender {
+
+    NSString *string = [self convertAttributedStringToString:[self.attributedString attributedSubstringFromRange:_selectedRange]];
+    [[UIPasteboard generalPasteboard] setString:string];
+
+    [_mutableAttributedString setAttributedString:self.attributedString];
+    [_mutableAttributedString deleteCharactersInRange:_selectedRange];
+
+    [self.inputDelegate textWillChange:self];
+    [self setAttributedString:_mutableAttributedString];
+    [self.inputDelegate textDidChange:self];
+
+    self.selectedRange = NSMakeRange(0, 0);
+
+}
+
+- (void)copy:(id)sender {
+
+    NSString *string = [self convertAttributedStringToString:[self.attributedString attributedSubstringFromRange:_selectedRange]];
+    [[UIPasteboard generalPasteboard] setString:string];
+
+}
+
+- (void)delete:(id)sender {
+
+    [_mutableAttributedString setAttributedString:self.attributedString];
+    [_mutableAttributedString deleteCharactersInRange:_selectedRange];
+    [self.inputDelegate textWillChange:self];
+    [self setAttributedString:_mutableAttributedString];
+    [self.inputDelegate textDidChange:self];
+
+    self.selectedRange = NSMakeRange(_selectedRange.location, 0);
+
+}
+
+- (void)replace:(id)sender {
+
+
+}
+
+
+
+
+#pragma mark - Delegate
+#pragma mark UIGestureRecognizerDelegate
+
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer{
+//    if (gestureRecognizer==self) {
+//
+//        if (_selectedRange.length>0 && _selectionView!=nil) {
+//            return CGRectContainsPoint(CGRectInset([_textContentView convertRect:_selectionView.frame
+//                                                                          toView:self], -20.0f, -20.0f) , [gestureRecognizer locationInView:self]);
+//        }
+//
+//    }
+
+    return YES;
+
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
+    if ([gestureRecognizer isKindOfClass:NSClassFromString(@"UIScrollViewPanGestureRecognizer")]) {
+        UIMenuController *menuController = [UIMenuController sharedMenuController];
+        if ([menuController isMenuVisible]) {
+            [menuController setMenuVisible:NO animated:NO];
+        }
+    }
+
+    return NO;
 }
 
 
