@@ -235,13 +235,17 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 }
 
 - (void)setText:(NSString *)text {
-//    [self.inputDelegate textWillChange:self];
-//    NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:text
-//                                                                 attributes:self.currentAttributes];
-    NSAttributedString *attributedString = [self converStringToAttributedString:text];
-
+    [self.inputDelegate textWillChange:self];
+    NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:text
+                                                                 attributes:self.currentAttributes];
     self.attributedString = attributedString;
-//    [self.inputDelegate textDidChange:self];
+    [self.inputDelegate textDidChange:self];
+}
+
+- (void)setEmotionText:(NSString *)emotionText {
+    _emotionText = emotionText;
+    NSAttributedString *attributedString = [self converStringToAttributedString:emotionText];
+    self.attributedString = attributedString;
 }
 
 - (void)setAttributedString:(NSAttributedString *)attributedString {

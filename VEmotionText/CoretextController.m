@@ -26,7 +26,7 @@
     NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"Emotion" ofType:@"plist"];
     NSDictionary *dictionary = [[NSDictionary alloc] initWithContentsOfFile:plistPath];
     self.vTextView.textImageMapping = dictionary;
-    self.vTextView.text = @"测试[高兴]";
+    self.vTextView.emotionText = @"测试[高兴]并且也有点[生气],测试[高兴]并且也有点[生气]";
 
     [self.view addSubview:self.vTextView];
 }

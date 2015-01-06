@@ -14,6 +14,7 @@
 
 @property (nonatomic, strong) NSString *text;
 @property (nonatomic, strong) NSAttributedString *attributedString;
+@property (nonatomic, strong) NSString *emotionText;
 @property (nonatomic, strong) UIFont *font;
 @property (nonatomic, strong) UIColor *textColor;
 @property (nonatomic, assign) BOOL editable;

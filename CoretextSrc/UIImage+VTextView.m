@@ -12,14 +12,16 @@
 
 - (void)attachmentDrawInRect:(CGRect)rect {
     CGContextRef contextRef = UIGraphicsGetCurrentContext();
-    CGContextTranslateCTM(contextRef, rect.origin.x, rect.origin.y+self.size.height);
+    CGContextTranslateCTM(contextRef, rect.origin.x, rect.origin.y+20.f/*self.size.height*/);
     CGContextScaleCTM(contextRef, 1, -1);
     CGContextTranslateCTM(contextRef, -rect.origin.x, -rect.origin.y);
     [self drawInRect:rect];
 }
 
 - (CGSize)attachmentSize {
-    return self.size;
+    //return self.size;
+    //表情固定大小
+    return CGSizeMake(20.f, 20.f);
 }
 
 @end
