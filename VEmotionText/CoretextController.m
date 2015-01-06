@@ -8,11 +8,12 @@
 
 #import "CoretextController.h"
 #import "VLoupeView.h"
+#import "VTextView.h"
 
 @interface CoretextController ()
 
 @property (nonatomic, strong) UITextView *textView;
-@property (nonatomic, strong) VLoupeView *lview;
+@property (nonatomic, strong) VTextView *vTextView;
 
 @end
 
@@ -20,23 +21,19 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.lview = [VLoupeView instance];
-    [self.view addSubview:self.lview];
-    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-    button.frame = CGRectMake(100.f, 100.f, 100.f, 100.f);
-    [button setTitle:@"title" forState:UIControlStateNormal];
-    button.backgroundColor = [UIColor blueColor];
-    [button addTarget:self action:@selector(ti) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:button];
+    self.vTextView = [[VTextView alloc] initWithFrame:CGRectMake(0.f, 100.f, self.view.bounds.size.width, 300.f)];
+    self.vTextView.backgroundColor = [UIColor purpleColor];
+    NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"Emotion" ofType:@"plist"];
+    NSDictionary *dictionary = [[NSDictionary alloc] initWithContentsOfFile:plistPath];
+    self.vTextView.textImageMapping = dictionary;
+    self.vTextView.text = @"测试[高兴]";
+
+    [self.view addSubview:self.vTextView];
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
-}
-
-- (void)ti {
-    self.lview.image = [UIImage imageNamed:@"emotion1"];
 }
 
 @end

@@ -16,4 +16,8 @@
 
 + (UIColor*)vMarkColor;
 
++ (UIColor*)vSpellingSelectionColor;
+
++ (UIColor*)vLinkColor;
+
 @end

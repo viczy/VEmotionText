@@ -56,6 +56,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 @property (nonatomic, strong) NSDictionary *correctionAttributes;
 @property (nonatomic, strong) NSMutableDictionary *menuItemActions;
 @property (nonatomic, assign) NSRange correctionRange;
+@property (nonatomic, assign) NSRange linkRange;
 
 @property (nonatomic, strong) NSMutableArray *attachmentViewArray;
 @property (nonatomic, strong) NSMutableAttributedString *mutableAttributeString;
@@ -71,6 +72,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (void)common;
 - (BOOL)hasText;
 - (void)textChanged;
+
 - (CGFloat)boundingHeightForWidth:(CGFloat)width;
 - (CGRect)caretRectForIndex:(NSInteger)index;
 - (CGRect)vFirstRectForRange:(NSRange)range;
@@ -80,19 +82,30 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (void)removeCorrectionAttributesForRange:(NSRange)range;
 - (void)insertCorrectionAttributesForRange:(NSRange)range;
 - (void)showCorrectionMenuForRange:(NSRange)range;
-- (void)checkLinksForRange:(NSRange)range;
-- (void)checkImageForRange:(NSRange)range;
 - (void)scanAttachments;
 - (void)showMenu;
 - (CGRect)menuPresentationRect;
 
-
+//NSAttributedstring <-> NSString
 - (NSAttributedString*)converStringToAttributedString:(NSString*)string;
 - (NSString*)converAttributedStringToString:(NSAttributedString*)attributedString;
 
 
-//layout
+//Layout
 - (void)drawContentInRect:(CGRect)rect;
+- (void)drawBoundingRangeAsSelection:(NSRange)selectionRange cornerRadius:(CGFloat)cornerRadius;
+- (void)drawPathFromRects:(NSArray*)array cornerRadius:(CGFloat)cornerRadius;
+
+//Layout get range
+- (NSRange)rangeIntersection:(NSRange)first withSecond:(NSRange)second;
+
+//Layout selection
+
+
+//Data Detectors
+- (void)checkLinksForRange:(NSRange)range;
+
+
 
 @end
 
@@ -103,7 +116,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        //
+        [self common];
     }
     return self;
 }
@@ -111,7 +124,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (id)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
     if (self) {
-        //
+        [self common];
     }
     return self;
 }
@@ -222,11 +235,13 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 }
 
 - (void)setText:(NSString *)text {
-    [self.inputDelegate textWillChange:self];
-    NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:text
-                                                                 attributes:self.currentAttributes];
+//    [self.inputDelegate textWillChange:self];
+//    NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:text
+//                                                                 attributes:self.currentAttributes];
+    NSAttributedString *attributedString = [self converStringToAttributedString:text];
+
     self.attributedString = attributedString;
-    [self.inputDelegate textDidChange:self];
+//    [self.inputDelegate textDidChange:self];
 }
 
 - (void)setAttributedString:(NSAttributedString *)attributedString {
@@ -255,10 +270,146 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     self.correctionAttributes = nil;
 }
 
+#pragma mark - View
+#pragma mark Layout
+
+- (void)drawContentInRect:(CGRect)rect {
+    UIColor *fillColor = [UIColor colorWithRed:.8f green:.8f blue:.8f alpha:1.f];
+    [fillColor setFill];
+    [self drawBoundingRangeAsSelection:self.linkRange cornerRadius:2.f];
+    [[UIColor vSelectionColor] setFill];
+    [self drawBoundingRangeAsSelection:self.selectedRange cornerRadius:0];
+    [[UIColor vSpellingSelectionColor] setFill];
+    [self drawBoundingRangeAsSelection:self.correctionRange cornerRadius:2.f];
+
+    CGPathRef frameRefPath = CTFrameGetPath(self.frameRef);
+    CGRect frameRefRect = CGPathGetBoundingBox(frameRefPath);
+    CFArrayRef lines = CTFrameGetLines(self.frameRef);
+    NSInteger lineCount = CFArrayGetCount(lines);
+    CGPoint *origins = (CGPoint*)malloc(lineCount*sizeof(CGPoint));
+    CTFrameGetLineOrigins(self.frameRef, CFRangeMake(0, lineCount), origins);
+
+    CGContextRef contextRef = UIGraphicsGetCurrentContext();
+    for (int i = 0; i <  lineCount; i++) {
+        CTLineRef lineRef = (CTLineRef)CFArrayGetValueAtIndex(lines, i);
+        CGContextSetTextPosition(contextRef, frameRefRect.origin.x+origins[i].x, frameRefRect.origin.y+origins[i].y);
+        CTLineDraw(lineRef, contextRef);
+        CFArrayRef runs = CTLineGetGlyphRuns(lineRef);
+        CFIndex runCount = CFArrayGetCount(runs);
+        for (CFIndex index = 0; index < runCount; index++) {
+            CTRunRef run = CFArrayGetValueAtIndex(runs, index);
+            CFDictionaryRef attributes = CTRunGetAttributes(run);
+            id <VTextAttachment>attachment = [(__bridge id)attributes objectForKey:vTextAttachmentAttributeName];
+            BOOL respondSize = [attachment respondsToSelector:@selector(attachmentSize)];
+            BOOL respondDraw = [attachment respondsToSelector:@selector(attachmentDrawInRect:)];
+            if (attachment && respondSize && respondDraw) {
+                CGPoint position;
+                CTRunGetPositions(run, CFRangeMake(0, 1), &position);
+                CGFloat ascent, descent, leading;
+                CTRunGetTypographicBounds(run, CFRangeMake(0, 1), &ascent, &descent, &leading);
+                CGSize size = [attachment attachmentSize];
+                CGRect rect = {{origins[i].x+position.x, origins[i].y+position.y-descent}, size};
+                CGContextSaveGState(UIGraphicsGetCurrentContext());
+                [attachment attachmentDrawInRect:rect];
+                CGContextSaveGState(UIGraphicsGetCurrentContext());
+            }
+        }
+    }
+    free(origins);
+}
+
+- (void)drawBoundingRangeAsSelection:(NSRange)selectionRange cornerRadius:(CGFloat)cornerRadius {
+    if (selectionRange.length == 0 || selectionRange.location == NSNotFound) {
+        return;
+    }
+
+    NSMutableArray *pathRects = [[NSMutableArray alloc] init];
+    NSArray *lines = (NSArray*)CTFrameGetLines(self.frameRef);
+    CGPoint *origins = (CGPoint*)malloc([lines count] * sizeof(CGPoint));
+    CTFrameGetLineOrigins(self.frameRef, CFRangeMake(0, [lines count]), origins);
+    NSInteger count = [lines count];
+
+    for (int i = 0; i < count; i++) {
+        CTLineRef line = (__bridge CTLineRef) [lines objectAtIndex:i];
+        CFRange lineRange = CTLineGetStringRange(line);
+        NSRange range = NSMakeRange(lineRange.location==kCFNotFound ? NSNotFound : lineRange.location, lineRange.length);
+        NSRange intersection = [self rangeIntersection:range withSecond:selectionRange];
+        if (intersection.location != NSNotFound && intersection.length > 0) {
+            CGFloat xStart = CTLineGetOffsetForStringIndex(line, intersection.location, NULL);
+            CGFloat xEnd = CTLineGetOffsetForStringIndex(line, intersection.location + intersection.length, NULL);
+            CGPoint origin = origins[i];
+            CGFloat ascent, descent;
+            CTLineGetTypographicBounds(line, &ascent, &descent, NULL);
+            CGRect selectionRect = CGRectMake(origin.x + xStart, origin.y - descent, xEnd - xStart, ascent + descent);
+            if (range.length==1) {
+                selectionRect.size.width = self.contentView.bounds.size.width;
+            }
+            [pathRects addObject:NSStringFromCGRect(selectionRect)];
+        }
+    }
+
+    [self drawPathFromRects:pathRects cornerRadius:cornerRadius];
+    free(origins);
+}
+
+- (void)drawPathFromRects:(NSArray*)array cornerRadius:(CGFloat)cornerRadius {
+    if (array.count == 0) {
+        return;
+    }
+
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGRect firstRect = CGRectFromString([array lastObject]);
+    CGRect lastRect = CGRectFromString([array objectAtIndex:0]);
+    if ([array count]>1) {
+        lastRect.size.width = self.contentView.bounds.size.width-lastRect.origin.x;
+    }
+    if (cornerRadius>0) {
+        CGPathAddPath(path, NULL, [UIBezierPath bezierPathWithRoundedRect:firstRect cornerRadius:cornerRadius].CGPath);
+        CGPathAddPath(path, NULL, [UIBezierPath bezierPathWithRoundedRect:lastRect cornerRadius:cornerRadius].CGPath);
+    } else {
+        CGPathAddRect(path, NULL, firstRect);
+        CGPathAddRect(path, NULL, lastRect);
+    }
+    if ([array count] > 1) {
+        CGRect fillRect = CGRectZero;
+        CGFloat originX = ([array count]==2) ? MIN(CGRectGetMinX(firstRect), CGRectGetMinX(lastRect)) : 0.0f;
+        CGFloat originY = firstRect.origin.y + firstRect.size.height;
+        CGFloat width = ([array count]==2) ? originX+MIN(CGRectGetMaxX(firstRect), CGRectGetMaxX(lastRect)) : self.contentView.bounds.size.width;
+        CGFloat height =  MAX(0.0f, lastRect.origin.y-originY);
+        fillRect = CGRectMake(originX, originY, width, height);
+        if (cornerRadius>0) {
+            CGPathAddPath(path, NULL, [UIBezierPath bezierPathWithRoundedRect:fillRect cornerRadius:cornerRadius].CGPath);
+        } else {
+            CGPathAddRect(path, NULL, fillRect);
+        }
+    }
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGContextAddPath(ctx, path);
+    CGContextFillPath(ctx);
+    CGPathRelease(path);
+}
+
+#pragma mark - View
+#pragma mark Layout Range
+
+- (NSRange)rangeIntersection:(NSRange)first withSecond:(NSRange)second {
+    NSRange result = NSMakeRange(NSNotFound, 0);
+    if (first.location > second.location) {
+        NSRange tmp = first;
+        first = second;
+        second = tmp;
+    }
+    if (second.location < first.location + first.length) {
+        result.location = second.location;
+        NSUInteger end = MIN(first.location + first.length, second.location + second.length);
+        result.length = end - result.location;
+    }
+    return result;
+}
+
 #pragma mark - Actions Private
 
 - (void)common {
-    self.text = @"";
     _editable = YES;
     _font = [UIFont systemFontOfSize:17];
     _autocorrectionType = UITextAutocorrectionTypeNo;
@@ -267,6 +418,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     self.backgroundColor = [UIColor whiteColor];
     self.clipsToBounds = YES;
     [self addSubview:self.contentView];
+    self.text = @"";
 }
 
 - (BOOL)hasText {
@@ -286,7 +438,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     //contentsize
     self.contentSize = CGSizeMake(self.frame.size.width, contentRect.size.height+self.font.lineHeight*2);
 
-    //frameRef
+    //frameRef(nsattributedstring的绘画需要通过ctframeref,而ctframesetterref是ctframeref的创建工厂)
     self.framesetterRef = CTFramesetterCreateWithAttributedString((CFAttributedStringRef)self.attributedString);
     UIBezierPath *path = [UIBezierPath bezierPathWithRect:self.contentView.bounds];
     self.frameRef = CTFramesetterCreateFrame(self.framesetterRef,CFRangeMake(0, 0), [path CGPath], NULL);
@@ -381,7 +533,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
             }
         }
     }];
-    return nil;
+    return mutableAttributedString;
 }
 
 - (NSString*)converAttributedStringToString:(NSAttributedString *)attributedString {
@@ -401,6 +553,67 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
                                   }
                               }];
     return [NSString stringWithString:mutableString];
+}
+
+#pragma mark - Actions Private
+#pragma mark - Data Detectors
+
+- (void)checkLinksForRange:(NSRange)range {
+    NSMutableDictionary *linkAttributes = [NSMutableDictionary dictionaryWithDictionary:self.currentAttributes];
+    [linkAttributes setObject:(id)[UIColor blueColor].CGColor
+                       forKey:(NSString*)kCTForegroundColorAttributeName];
+    [linkAttributes setObject:(id)[NSNumber numberWithInt:(int)kCTUnderlineStyleSingle]
+                       forKey:(NSString*)kCTUnderlineStyleAttributeName];
+
+    NSMutableAttributedString *string = [_attributedString mutableCopy];
+    NSError *error = nil;
+    NSDataDetector *linkDetector = [NSDataDetector dataDetectorWithTypes:NSTextCheckingTypeLink
+                                                                   error:&error];
+    [linkDetector enumerateMatchesInString:[string string]
+                                   options:0
+                                     range:range
+                                usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) {
+
+                                    if ([result resultType] == NSTextCheckingTypeLink) {
+                                        [string addAttributes:linkAttributes range:[result range]];
+                                    }
+
+                                }];
+
+    if (![self.attributedString isEqualToAttributedString:string]) {
+        self.attributedString = string;
+    }
+}
+
+- (void)scanAttachments
+{
+    __block NSMutableAttributedString *mutableAttributedString;
+    NSRange stringRange = NSMakeRange(0, self.attributedString.length);
+    [self.attributedString enumerateAttribute: vTextAttachmentAttributeName
+                                  inRange: stringRange
+                                  options: 0
+                               usingBlock: ^(id value, NSRange range, BOOL *stop) {
+                                   if (value != nil) {
+                                       if (mutableAttributedString == nil)
+                                           mutableAttributedString = [[NSMutableAttributedString alloc] initWithAttributedString:self.attributedString];
+                                       CTRunDelegateCallbacks callbacks = {
+                                           .version = kCTRunDelegateVersion1,
+                                           .dealloc = AttachmentRunDelegateDealloc,
+                                           .getAscent = AttachmentRunDelegateGetAscent,
+                                           .getDescent = AttachmentRunDelegateGetDescent,
+                                           .getWidth = AttachmentRunDelegateGetWidth
+                                       };
+
+                                       // the retain here is balanced by the release in the Dealloc function
+                                       CTRunDelegateRef runDelegate = CTRunDelegateCreate(&callbacks, (__bridge void *)(value));
+                                       [mutableAttributedString addAttribute: (NSString *)kCTRunDelegateAttributeName
+                                                                       value: (id)CFBridgingRelease(runDelegate)
+                                                                       range:range];
+                                       CFRelease(runDelegate);
+                                   }
+                               }];
+
+    self.attributedString = mutableAttributedString;
 }
 
 #pragma mark - Delegate

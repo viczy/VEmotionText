@@ -33,6 +33,7 @@
 @property (readwrite, strong) UIView *inputView;
 @property (readwrite, strong) UIView *inputAccessoryView;
 
+@property (nonatomic, weak) id <UITextInputDelegate> inputDelegate;
 @property (nonatomic, weak) id <VTextViewDelegate> delegate;
 
 

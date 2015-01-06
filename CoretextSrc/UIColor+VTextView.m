@@ -22,4 +22,12 @@
     return [UIColor colorWithRed:0.800f green:0.867f blue:0.929f alpha:1.0f];
 }
 
++ (UIColor*)vSpellingSelectionColor {
+    return [UIColor colorWithRed:1.000f green:0.851f blue:0.851f alpha:1.0f];
+}
+
++ (UIColor*)vLinkColor {
+    return [UIColor blueColor];
+}
+
 @end
