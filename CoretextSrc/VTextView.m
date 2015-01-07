@@ -157,7 +157,6 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     if (!_longPress) {
         _longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPress:)];
         _longPress.delegate = self;
-        [self addGestureRecognizer:_longPress];
     }
     return _longPress;
 }
@@ -502,6 +501,18 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     self.clipsToBounds = YES;
     [self addSubview:self.contentView];
     self.text = @"";
+    [self addGestures];
+
+}
+
+- (void)addGestures {
+    [self addGestureRecognizer:self.longPress];
+    UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
+    [doubleTap setNumberOfTapsRequired:2];
+    [self addGestureRecognizer:doubleTap];
+
+    UITapGestureRecognizer *singleTap =  [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tap:)];
+    [self addGestureRecognizer:singleTap];
 }
 
 - (void)textChanged {
@@ -1284,8 +1295,6 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
     [self.inputDelegate selectionDidChange:self];
 }
-
-
 
 #pragma mark - #Actions Private
 
