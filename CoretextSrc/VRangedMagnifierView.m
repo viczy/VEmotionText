@@ -21,17 +21,10 @@
     CGRect rect = CGRectMake(0.f, 0.f, 245.f, 59.f);
     self = [super initWithFrame:rect];
     if (self) {
-        self.backgroundColor = [UIColor whiteColor];
+        self.backgroundColor = [UIColor clearColor];
     }
     return self;
 }
-
-//#pragma mark - Setter
-//
-//- (void)setImage:(UIImage *)image {
-//    _image = image;
-//    [self setNeedsDisplay];
-//}
 
 #pragma mark - UIView
 

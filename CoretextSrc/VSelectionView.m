@@ -36,7 +36,7 @@
 
 - (UIImageView *)leftDot {
     if (!_leftDot) {
-        UIImage *dot = [UIImage imageNamed:@"section_dot"];
+        UIImage *dot = [UIImage imageNamed:@"drag_dot"];
         _leftDot = [[UIImageView alloc] initWithFrame:CGRectMake(0.f, 0.f, dot.size.width, dot.size.height)];
         _leftDot.image = dot;
 
@@ -54,7 +54,7 @@
 
 - (UIImageView*)rightDot {
     if (!_rightDot) {
-        UIImage *dot = [UIImage imageNamed:@"section_dot"];
+        UIImage *dot = [UIImage imageNamed:@"drag_dot"];
         _rightDot = [[UIImageView alloc] initWithFrame:CGRectMake(0.f, 0.f, dot.size.width, dot.size.height)];
         _rightDot.image = dot;
     }

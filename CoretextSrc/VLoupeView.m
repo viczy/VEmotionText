@@ -23,7 +23,7 @@ static CGFloat const kScaleFactor = 1.5f;
     CGRect rect = CGRectMake(0.f, 0.f, 127.f, 127.f);
     self = [super initWithFrame:rect];
     if (self) {
-        self.backgroundColor = [UIColor whiteColor];
+        self.backgroundColor = [UIColor clearColor];
     }
     return self;
 }
