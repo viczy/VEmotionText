@@ -26,7 +26,7 @@ typedef enum {
 
 - (void)showFromView:(UIView*)view withRect:(CGRect)rect;
 
-- (void)renderContentView:(UIView*)view fromeRect:(CGRect)rect;
+- (void)renderContentView:(UIView*)view fromRect:(CGRect)rect;
 
 - (void)hide;
 

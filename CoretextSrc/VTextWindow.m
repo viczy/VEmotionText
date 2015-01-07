@@ -77,13 +77,13 @@ static CGFloat const kLoupeOffsetY = 64.f;
     } completion:^(BOOL finished) {
         _showing=YES;
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (0.0f*NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self renderContentView:view fromeRect:rect];
+            [self renderContentView:view fromRect:rect];
         });
 
     }];
 }
 
-- (void)renderContentView:(UIView *)view fromeRect:(CGRect)rect {
+- (void)renderContentView:(UIView *)view fromRect:(CGRect)rect {
     if (!_showing || !self.magnifierView) {
         return;
     }
