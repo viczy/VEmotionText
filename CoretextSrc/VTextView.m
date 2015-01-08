@@ -284,8 +284,6 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (void)setText:(NSString *)text {
     [self.inputDelegate textWillChange:self];
     NSAttributedString *attributedString = [self converStringToAttributedString:text];
-//    NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:text
-//                                                                 attributes:self.currentAttributes];
     self.attributedString = attributedString;
     [self.inputDelegate textDidChange:self];
 }

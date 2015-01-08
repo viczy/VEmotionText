@@ -18,7 +18,7 @@
 
 -(id)init {
     //默认大小
-    CGRect rect = CGRectMake(0.f, 0.f, 245.f, 59.f);
+    CGRect rect = CGRectMake(0.f, 0.f, 145.f, 59.f);
     self = [super initWithFrame:rect];
     if (self) {
         self.backgroundColor = [UIColor clearColor];
@@ -40,7 +40,7 @@
         CGContextSaveGState(contextRef);
 
         CGContextClipToMask(contextRef, rect, maskImage.CGImage);
-        [self.image drawInRect:rect];
+        CGContextDrawImage(contextRef, rect, self.image.CGImage);
 
         CGContextRestoreGState(contextRef);
     }

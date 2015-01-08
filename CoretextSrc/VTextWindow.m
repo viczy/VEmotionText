@@ -13,7 +13,7 @@
 #import "VMagnifierView.h"
 
 static NSTimeInterval const kAnimationDuration = 0.15f;
-static CGFloat const kLoupeOffsetY = 64.f;
+static float const rangedMgnifierOffsetY = 44.f;
 
 @interface VTextWindow ()
 
@@ -36,7 +36,7 @@ static CGFloat const kLoupeOffsetY = 64.f;
 
 #pragma mark - Getter
 
-- (UIView*)magnifierView {
+- (VMagnifierView*)magnifierView {
     if (!_magnifierView) {
         if (self.type == VWindowLoupe) {
             _magnifierView = [VLoupeView instance];
@@ -45,6 +45,19 @@ static CGFloat const kLoupeOffsetY = 64.f;
         }
     }
     return _magnifierView;
+}
+
+#pragma mark - Setter {
+
+- (void)setType:(VWindowType)type {
+    if (_type != type) {
+        _type = type;
+        if (self.type == VWindowLoupe) {
+            self.magnifierView = [VLoupeView instance];
+        }else {
+            self.magnifierView = [VRangedMagnifierView instance];
+        }
+    }
 }
 
 #pragma mark - Layout
@@ -92,7 +105,6 @@ static CGFloat const kLoupeOffsetY = 64.f;
 
     UIImage *image = [self screenshotCaretRect:rect inView:view];
     self.magnifierView.image = image;
-
 }
 
 - (void)hide {
@@ -142,7 +154,7 @@ static CGFloat const kLoupeOffsetY = 64.f;
     magnifierRect.origin.y = floorf(point.y-magnifierRect.size.height);
     switch (self.type) {
         case VWindowLoupe: {
-            magnifierRect.origin.y = MAX(magnifierRect.origin.y, -40.f);
+            magnifierRect.origin.y = MAX(magnifierRect.origin.y, -47.f);
             break;
         }
 
@@ -163,11 +175,12 @@ static CGFloat const kLoupeOffsetY = 64.f;
     CGFloat offsetX = offsetRect.origin.x;
     CGFloat offsetY = offsetRect.origin.y;
     offsetX -= self.magnifierView.bounds.size.width/2;
-    offsetY -= self.magnifierView.bounds.size.width;
-    offsetY -= 21.f;//label height
-    offsetY += kLoupeOffsetY;
+    offsetY -= self.magnifierView.bounds.size.width/2;
     if ([view.superview isKindOfClass:[UIScrollView class]]) {
         offsetY += ((UIScrollView*)view.superview).contentOffset.y;
+    }
+    if (self.type == VWindowMagnify) {
+        offsetY += rangedMgnifierOffsetY;
     }
 
     UIView *selectionView;
@@ -190,15 +203,15 @@ static CGFloat const kLoupeOffsetY = 64.f;
     UIRectFill(CGContextGetClipBoundingBox(contextRef));
 
     CGContextSaveGState(contextRef);
-    CGContextTranslateCTM(contextRef, 0, view.bounds.size.height);
-    CGContextTranslateCTM(contextRef, 1.f, -1.f);
-    CGContextConcatCTM(contextRef, CGAffineTransformMakeTranslation(-offsetX, offsetY));
+    CGContextConcatCTM(contextRef, CGAffineTransformMakeTranslation(-offsetX, -offsetY));
 
     [view.layer renderInContext:contextRef];
 
     CGContextRestoreGState(contextRef);
+
     UIImage *screenshot = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
+
 
     if (selectionView) {
         selectionView.frame = selectionRect;

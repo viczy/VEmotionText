@@ -39,7 +39,6 @@
         UIImage *dot = [UIImage imageNamed:@"drag_dot"];
         _leftDot = [[UIImageView alloc] initWithFrame:CGRectMake(0.f, 0.f, dot.size.width, dot.size.height)];
         _leftDot.image = dot;
-
     }
     return _leftDot;
 }

@@ -8,7 +8,7 @@
 
 #import "VLoupeView.h"
 
-static CGFloat const kScaleFactor = 1.5f;
+static CGFloat const kScaleFactor = 1.2f;
 
 @implementation VLoupeView
 
@@ -20,7 +20,7 @@ static CGFloat const kScaleFactor = 1.5f;
 
 -(id)init {
     //默认放大镜的大小
-    CGRect rect = CGRectMake(0.f, 0.f, 127.f, 127.f);
+    CGRect rect = CGRectMake(0.f, 0.f, 114.f, 114.f);
     self = [super initWithFrame:rect];
     if (self) {
         self.backgroundColor = [UIColor clearColor];
@@ -43,7 +43,8 @@ static CGFloat const kScaleFactor = 1.5f;
 
         CGContextClipToMask(contextRef, rect, maskImage.CGImage);
 
-        [self.image drawInRect:[self imageRectWithSuperRect:rect]];
+        CGContextDrawImage(contextRef, [self imageRectWithSuperRect:rect], self.image.CGImage);
+//        [self.image drawInRect:[self imageRectWithSuperRect:rect]];
         CGContextRestoreGState(contextRef);
     }
     [hiImage drawInRect:rect];
@@ -54,7 +55,7 @@ static CGFloat const kScaleFactor = 1.5f;
 - (CGRect)imageRectWithSuperRect:(CGRect)superRect {
     CGPoint center = {CGRectGetMidX(superRect), CGRectGetMidY(superRect)};
     CGFloat imageW = kScaleFactor*CGRectGetWidth(superRect);
-    CGFloat imageH = kScaleFactor*CGRectGetWidth(superRect);
+    CGFloat imageH = kScaleFactor*CGRectGetHeight(superRect);
     CGFloat imageX = center.x-imageW/2;
     CGFloat imageY = center.y-imageH/2;
     CGRect imageRect = CGRectMake(imageX, imageY, imageW, imageH);
