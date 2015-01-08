@@ -486,7 +486,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 #pragma mark - Common & TextChanged
 
 - (void)common {
-    _editable = NO;
+    _editable = YES;
     _editing = NO;
     _font = [UIFont systemFontOfSize:17];
     _autocorrectionType = UITextAutocorrectionTypeNo;
@@ -502,9 +502,9 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
 - (void)addGestures {
     [self addGestureRecognizer:self.longPress];
-    UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
-    [doubleTap setNumberOfTapsRequired:2];
-    [self addGestureRecognizer:doubleTap];
+//    UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
+//    [doubleTap setNumberOfTapsRequired:2];
+//    [self addGestureRecognizer:doubleTap];
 
     UITapGestureRecognizer *singleTap =  [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tap:)];
     [self addGestureRecognizer:singleTap];
@@ -1154,7 +1154,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     if (gesture.state==UIGestureRecognizerStateBegan || gesture.state == UIGestureRecognizerStateChanged) {
 
         if (self.linkRange.length>0 && gesture.state == UIGestureRecognizerStateBegan) {
-            NSTextCheckingResult *link = [self linkAtIndex:_linkRange.location];
+            NSTextCheckingResult *link = [self linkAtIndex:self.linkRange.location];
             [self setLinkRangeFromTextCheckerResults:link];
             gesture.enabled=NO;
             gesture.enabled=YES;
@@ -1173,22 +1173,22 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
         }
 
         [self.textWindow updateWindowTransform];
-        [self.textWindow setType:hasSelection ? VWindowMagnify : VWindowLoupe];
+        self.textWindow.type =  hasSelection ? VWindowMagnify : VWindowLoupe;
 
         point.y -= 20.0f;
         NSInteger index = [self closestIndexToPoint:point];
 
         if (hasSelection) {
             if (gesture.state == UIGestureRecognizerStateBegan) {
-                self.textWindow.selectionType = (index > (_selectedRange.location+(_selectedRange.length/2))) ? VSelectionTypeRight : VSelectionTypeLeft;
+                self.textWindow.selectionType = (index > (self.selectedRange.location+(self.selectedRange.length/2))) ? VSelectionTypeRight : VSelectionTypeLeft;
             }
             CGRect rect = CGRectZero;
             if (self.textWindow.selectionType==VSelectionTypeLeft) {
                 NSInteger begin = MAX(0, index);
-                begin = MIN(_selectedRange.location+_selectedRange.length-1, begin);
+                begin = MIN(self.selectedRange.location+self.selectedRange.length-1, begin);
 
-                NSInteger end = _selectedRange.location + _selectedRange.length;
-                end = MIN(_attributedString.string.length, end-begin);
+                NSInteger end = self.selectedRange.location + self.selectedRange.length;
+                end = MIN(self.attributedString.string.length, end-begin);
 
                 self.selectedRange = NSMakeRange(begin, end);
                 index = self.selectedRange.location;
@@ -1206,9 +1206,12 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
                 [self.textWindow renderContentView:self.contentView fromRect:[self.contentView convertRect:rect toView:self.textWindow]];
             }
         } else {
+            NSInteger index = [self closestIndexToPoint:[gesture locationInView:self]];
+            NSRange range = [self characterRangeAtIndex:index];
+            self.selectedRange = range;
+
             CGPoint location = [gesture locationInView:self.textWindow];
             CGRect rect = CGRectMake(location.x, location.y, self.caretView.bounds.size.width, self.caretView.bounds.size.height);
-            self.selectedRange = NSMakeRange(index, 0);
 
             if (gesture.state == UIGestureRecognizerStateBegan) {
                 [self.textWindow showFromView:self.contentView withRect:rect];
@@ -1234,20 +1237,20 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     }
 }
 
-- (void)doubleTap:(UITapGestureRecognizer*)gesture {
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(showMenu) object:nil];
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(showCorrectionMenu) object:nil];
-    NSInteger index = [self closestIndexToPoint:[gesture locationInView:self]];
-    NSRange range = [self characterRangeAtIndex:index];
-    if (range.location!=NSNotFound && range.length>0) {
-        [self.inputDelegate selectionWillChange:self];
-        self.selectedRange = range;
-        [self.inputDelegate selectionDidChange:self];
-        if (![[UIMenuController sharedMenuController] isMenuVisible]) {
-            [self performSelector:@selector(showMenu) withObject:nil afterDelay:0.1f];
-        }
-    }
-}
+//- (void)doubleTap:(UITapGestureRecognizer*)gesture {
+//    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(showMenu) object:nil];
+//    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(showCorrectionMenu) object:nil];
+//    NSInteger index = [self closestIndexToPoint:[gesture locationInView:self]];
+//    NSRange range = [self characterRangeAtIndex:index];
+//    if (range.location!=NSNotFound && range.length>0) {
+//        [self.inputDelegate selectionWillChange:self];
+//        self.selectedRange = range;
+//        [self.inputDelegate selectionDidChange:self];
+//        if (![[UIMenuController sharedMenuController] isMenuVisible]) {
+//            [self performSelector:@selector(showMenu) withObject:nil afterDelay:0.1f];
+//        }
+//    }
+//}
 
 - (void)tap:(UITapGestureRecognizer*)gesture {
     if (_editable && ![self isFirstResponder]) {
