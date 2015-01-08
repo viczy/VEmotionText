@@ -16,6 +16,6 @@
 
 - (CGSize)attachmentSize;
 
-- (void)attachmentDrawInRect:(CGRect)rect;
+- (void)attachmentDrawInRect:(CGRect)rect withContent:(CGContextRef)context;
 
 @end

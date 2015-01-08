@@ -10,13 +10,10 @@
 
 @implementation UIImage (VTextView)
 
-- (void)attachmentDrawInRect:(CGRect)rect {
-//    CGContextRef contextRef = UIGraphicsGetCurrentContext();
-//    CGContextTranslateCTM(contextRef, rect.origin.x, rect.origin.y+20.f/*self.size.height*/);
-//    CGContextScaleCTM(contextRef, 1, -1);
-//    CGContextTranslateCTM(contextRef, -rect.origin.x, -rect.origin.y);
-    [self drawInRect:rect];
+- (void)attachmentDrawInRect:(CGRect)rect withContent:(CGContextRef)context {
+    CGContextDrawImage(context, rect, self.CGImage);
 }
+
 
 - (CGSize)attachmentSize {
     //return self.size;

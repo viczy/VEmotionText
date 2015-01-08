@@ -370,7 +370,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 #pragma mark - Layout
 
 - (void)drawContentInRect:(CGRect)rect {
-    UIColor *fillColor = [UIColor whiteColor];
+    UIColor *fillColor = [UIColor clearColor];
     [fillColor setFill];
     [self drawBoundingRangeAsSelection:self.linkRange cornerRadius:2.f];
     [[UIColor vSelectionColor] setFill];
@@ -382,8 +382,8 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     CGRect frameRefRect = CGPathGetBoundingBox(frameRefPath);
     CFArrayRef lines = CTFrameGetLines(self.frameRef);
     NSInteger lineCount = CFArrayGetCount(lines);
-    CGPoint *origins = (CGPoint*)malloc(lineCount*sizeof(CGPoint));
-    CTFrameGetLineOrigins(self.frameRef, CFRangeMake(0, lineCount), origins);
+    CGPoint origins[lineCount];
+    CTFrameGetLineOrigins(self.frameRef, CFRangeMake(0, 0), origins);
 
     CGContextRef contextRef = UIGraphicsGetCurrentContext();
     for (int i = 0; i <  lineCount; i++) {
@@ -397,7 +397,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
             CFDictionaryRef attributes = CTRunGetAttributes(run);
             id <VTextAttachment>attachment = [(__bridge id)attributes objectForKey:vTextAttachmentAttributeName];
             BOOL respondSize = [attachment respondsToSelector:@selector(attachmentSize)];
-            BOOL respondDraw = [attachment respondsToSelector:@selector(attachmentDrawInRect:)];
+            BOOL respondDraw = [attachment respondsToSelector:@selector(attachmentDrawInRect:withContent:)];
             if (attachment && respondSize && respondDraw) {
                 CGPoint position;
                 CTRunGetPositions(run, CFRangeMake(0, 1), &position);
@@ -405,13 +405,10 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
                 CTRunGetTypographicBounds(run, CFRangeMake(0, 1), &ascent, &descent, &leading);
                 CGSize size = [attachment attachmentSize];
                 CGRect rect = {{origins[i].x+position.x, origins[i].y+position.y-descent}, size};
-                CGContextSaveGState(UIGraphicsGetCurrentContext());
-                [attachment attachmentDrawInRect:rect];
-                CGContextSaveGState(UIGraphicsGetCurrentContext());
+                [attachment attachmentDrawInRect:rect withContent:contextRef];
             }
         }
     }
-    free(origins);
 }
 
 - (void)drawBoundingRangeAsSelection:(NSRange)selectionRange cornerRadius:(CGFloat)cornerRadius {
@@ -491,7 +488,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 #pragma mark - Common & TextChanged
 
 - (void)common {
-    _editable = YES;
+    _editable = NO;
     _editing = NO;
     _font = [UIFont systemFontOfSize:17];
     _autocorrectionType = UITextAutocorrectionTypeNo;
@@ -548,7 +545,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
                                            CGRect rect = [self vFirstRectForRange:range];
                                            rect.size = view.frame.size;
                                            view.frame = rect;
-                                           [self addSubview:view];
+                                           //[self addSubview:view];
                                        }
                                    }];
     [self.contentView setNeedsDisplay];
@@ -1211,7 +1208,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
                 [self.textWindow renderContentView:self.contentView fromRect:[self.contentView convertRect:rect toView:self.textWindow]];
             }
         } else {
-            CGPoint location = [gesture locationInView:_textWindow];
+            CGPoint location = [gesture locationInView:self.textWindow];
             CGRect rect = CGRectMake(location.x, location.y, self.caretView.bounds.size.width, self.caretView.bounds.size.height);
             self.selectedRange = NSMakeRange(index, 0);
 
