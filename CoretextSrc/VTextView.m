@@ -40,11 +40,11 @@ static CGSize AttachmentRunDelegateGetSize(void *refCon) {
 }
 
 static CGFloat AttachmentRunDelegateGetAscent(void *refCon) {
-    return AttachmentRunDelegateGetSize(refCon).height;
+    return AttachmentRunDelegateGetSize(refCon).height-3.f;
 }
 
 static CGFloat AttachmentRunDelegateGetDescent(void *refCon) {
-    return 0;
+    return 3.f;
 }
 
 static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
