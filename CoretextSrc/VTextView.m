@@ -662,6 +662,9 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
         }
 
         if (!self.caretView.superview) {
+            if (!self.caretView) {
+                self.caretView = [[VCaretView alloc] initWithFrame:CGRectZero];
+            }
             [self.contentView addSubview:self.caretView];
             [self.contentView setNeedsDisplay];
         }
