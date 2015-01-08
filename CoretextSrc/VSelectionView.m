@@ -86,15 +86,20 @@
 
     CGRect leftDotRect = self.leftDot.frame;
     leftDotRect.origin.x = floorf(CGRectGetMidX(begin)-leftDotRect.size.width/2);
-    leftDotRect.origin.y = CGRectGetMidY(begin)-leftDotRect.size.height;
+    leftDotRect.origin.y = CGRectGetMidY(begin)-leftDotRect.size.height-self.leftDot.bounds.size.height/2;
     CGRect rightDotRect = self.rightDot.frame;
     rightDotRect.origin.x = floorf(CGRectGetMidX(end)-rightDotRect.size.width/2);
-    rightDotRect.origin.y = CGRectGetMidY(end)-rightDotRect.size.height;
+    rightDotRect.origin.y = CGRectGetMidY(end)+rightDotRect.size.height-self.rightDot.bounds.size.height/2;
 
     self.leftCaret.frame = begin;
     self.rightCaret.frame = end;
     self.leftDot.frame = leftDotRect;
     self.rightDot.frame = rightDotRect;
+
+    [self addSubview:self.leftCaret];
+    [self addSubview:self.leftDot];
+    [self addSubview:self.rightCaret];
+    [self addSubview:self.rightDot];
 }
 
 @end

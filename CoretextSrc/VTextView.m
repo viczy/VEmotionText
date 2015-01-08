@@ -309,7 +309,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
         }
     }else {
         [self.caretView removeFromSuperview];
-        self.caretView=nil;
+        self.caretView = nil;
     }
     self.tokenizer = nil;
     self.textChecker = nil;
@@ -756,7 +756,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
                 xPos = 0.0f; // empty line
             }
 
-            returnRect = CGRectMake(origin.x + xPos,  floorf(origin.y - descent), 3, ceilf((descent*2) + ascent));
+            returnRect = CGRectMake(origin.x + xPos,  floorf(origin.y - descent)-2.f, 3, ceilf((descent*2) + ascent));
         }
     }
     free(origins);
