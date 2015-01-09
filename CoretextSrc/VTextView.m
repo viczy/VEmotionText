@@ -295,10 +295,10 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
 - (void)setAttributedString:(NSAttributedString *)attributedString {
     _attributedString = attributedString;
-    NSRange stringRange = NSMakeRange(0, attributedString.length);
-    if (!_editing && !_editable) {
-        [self checkLinksForRange:stringRange];
-    }
+//    NSRange stringRange = NSMakeRange(0, attributedString.length);
+//    if (!_editing && !_editable) {
+//        [self checkLinksForRange:stringRange];
+//    }
 
     [self textChanged];
     if ([self.delegate respondsToSelector:@selector(vTextViewDidChange:)]) {
@@ -309,10 +309,12 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (void)setEditable:(BOOL)editable {
     _editable = editable;
     if (editable) {
+        self.inputView = nil;
         if (!self.caretView) {
             self.caretView = [[VCaretView alloc] initWithFrame:CGRectZero];
         }
     }else {
+        self.inputView = [[UIView alloc] init];
         [self.caretView removeFromSuperview];
         self.caretView = nil;
     }
@@ -502,14 +504,13 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     [self addSubview:self.contentView];
     self.text = @"";
     [self addGestures];
-
 }
 
 - (void)addGestures {
     [self addGestureRecognizer:self.longPress];
-//    UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
-//    [doubleTap setNumberOfTapsRequired:2];
-//    [self addGestureRecognizer:doubleTap];
+    UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
+    [doubleTap setNumberOfTapsRequired:2];
+    [self addGestureRecognizer:doubleTap];
 
     UITapGestureRecognizer *singleTap =  [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tap:)];
     [self addGestureRecognizer:singleTap];
@@ -534,23 +535,23 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     self.frameRef = CTFramesetterCreateFrame(self.framesetterRef,CFRangeMake(0, 0), [path CGPath], NULL);
 
     //
-    for (UIView *view in self.attachmentViewArray) {
-        [view removeFromSuperview];
-    }
-    NSRange stringRange = NSMakeRange(0, self.attributedString.length);
-    [self.attributedString enumerateAttribute:vTextAttachmentAttributeName
-                                      inRange:stringRange
-                                      options:0
-                                   usingBlock:^(id value, NSRange range, BOOL *stop) {
-                                       if ([value respondsToSelector:@selector(attachmentView)]) {
-                                           UIView *view = [value attachmentView];
-                                           [self.attachmentViewArray addObject:view];
-                                           CGRect rect = [self vFirstRectForRange:range];
-                                           rect.size = view.frame.size;
-                                           view.frame = rect;
-                                           //[self addSubview:view];
-                                       }
-                                   }];
+//    for (UIView *view in self.attachmentViewArray) {
+//        [view removeFromSuperview];
+//    }
+//    NSRange stringRange = NSMakeRange(0, self.attributedString.length);
+//    [self.attributedString enumerateAttribute:vTextAttachmentAttributeName
+//                                      inRange:stringRange
+//                                      options:0
+//                                   usingBlock:^(id value, NSRange range, BOOL *stop) {
+//                                       if ([value respondsToSelector:@selector(attachmentView)]) {
+//                                           UIView *view = [value attachmentView];
+//                                           [self.attachmentViewArray addObject:view];
+//                                           CGRect rect = [self vFirstRectForRange:range];
+//                                           rect.size = view.frame.size;
+//                                           view.frame = rect;
+//                                           //[self addSubview:view];
+//                                       }
+//                                   }];
     [self.contentView setNeedsDisplay];
 }
 
@@ -655,7 +656,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 #pragma mark - Selection
 
 - (void)selectionChanged {
-    if (!_editing) {
+    if (_editable && !_editing) {
         [self.caretView removeFromSuperview];
     }
     _ignoreSelectionMenu = NO;
@@ -666,7 +667,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
             self.selectionView=nil;
         }
 
-        if (!self.caretView.superview) {
+        if (_editable && !self.caretView.superview) {
             if (!self.caretView) {
                 self.caretView = [[VCaretView alloc] initWithFrame:CGRectZero];
             }
@@ -1232,14 +1233,18 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 #pragma mark - Gesture
 
 - (void)longPress:(UILongPressGestureRecognizer*)gesture {
+    if (![self isFirstResponder]) {
+        [self becomeFirstResponder];
+    }
+
     if (gesture.state==UIGestureRecognizerStateBegan || gesture.state == UIGestureRecognizerStateChanged) {
 
-        if (self.linkRange.length>0 && gesture.state == UIGestureRecognizerStateBegan) {
-            NSTextCheckingResult *link = [self linkAtIndex:self.linkRange.location];
-            [self setLinkRangeFromTextCheckerResults:link];
-            gesture.enabled=NO;
-            gesture.enabled=YES;
-        }
+//        if (self.linkRange.length>0 && gesture.state == UIGestureRecognizerStateBegan) {
+//            NSTextCheckingResult *link = [self linkAtIndex:self.linkRange.location];
+//            [self setLinkRangeFromTextCheckerResults:link];
+//            gesture.enabled=NO;
+//            gesture.enabled=YES;
+//        }
 
         UIMenuController *menuController = [UIMenuController sharedMenuController];
         if ([menuController isMenuVisible]) {
@@ -1289,7 +1294,12 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
         } else {
             NSInteger index = [self closestIndexToPoint:[gesture locationInView:self]];
             NSRange range = [self characterRangeAtIndex:index];
-            self.selectedRange = range;
+            if (range.location!=NSNotFound && range.length>0) {
+                [self.inputDelegate selectionWillChange:self];
+                self.selectedRange = range;
+                [self selectionChanged];
+                [self.inputDelegate selectionDidChange:self];
+            }
 
             CGPoint location = [gesture locationInView:self.textWindow];
             CGRect rect = CGRectMake(location.x, location.y, self.caretView.bounds.size.width, self.caretView.bounds.size.height);
@@ -1318,25 +1328,24 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     }
 }
 
-//- (void)doubleTap:(UITapGestureRecognizer*)gesture {
-//    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(showMenu) object:nil];
-//    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(showCorrectionMenu) object:nil];
-//    NSInteger index = [self closestIndexToPoint:[gesture locationInView:self]];
-//    NSRange range = [self characterRangeAtIndex:index];
-//    if (range.location!=NSNotFound && range.length>0) {
-//        [self.inputDelegate selectionWillChange:self];
-//        self.selectedRange = range;
-//        [self.inputDelegate selectionDidChange:self];
-//        if (![[UIMenuController sharedMenuController] isMenuVisible]) {
-//            [self performSelector:@selector(showMenu) withObject:nil afterDelay:0.1f];
-//        }
-//    }
-//}
+- (void)doubleTap:(UITapGestureRecognizer*)gesture {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(showMenu) object:nil];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(showCorrectionMenu) object:nil];
+    NSInteger index = [self closestIndexToPoint:[gesture locationInView:self]];
+    NSRange range = [self characterRangeAtIndex:index];
+    if (range.location!=NSNotFound && range.length>0) {
+        [self.inputDelegate selectionWillChange:self];
+        self.selectedRange = range;
+        [self.inputDelegate selectionDidChange:self];
+        if (![[UIMenuController sharedMenuController] isMenuVisible]) {
+            [self performSelector:@selector(showMenu) withObject:nil afterDelay:0.1f];
+        }
+    }
+}
 
 - (void)tap:(UITapGestureRecognizer*)gesture {
-    if (_editable && ![self isFirstResponder]) {
+    if (![self isFirstResponder]) {
         [self becomeFirstResponder];
-        return;
     }
 
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(showMenu) object:nil];
@@ -1347,7 +1356,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     }
 
     NSInteger index = [self closestIndexToPoint:[gesture locationInView:self]];
-    BOOL respondUrl = [self.delegate respondsToSelector:@selector(vTextView:didSelectURL:)];
+    BOOL respondUrl = YES;// [self.delegate respondsToSelector:@selector(vTextView:didSelectURL:)];
     if (respondUrl && !_editing) {
         if ([self selectedLinkAtIndex:index]) {
             return;
@@ -1774,7 +1783,6 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     }else {
         return YES;
     }
-
 }
 
 - (BOOL)becomeFirstResponder {
@@ -1821,15 +1829,15 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     }
 
     if (action==@selector(cut:)) {
-        return (self.selectedRange.length>0 && _editing);
+        return (_editable && self.selectedRange.length>0 && _editing);
     } else if (action==@selector(copy:)) {
         return ((self.selectedRange.length>0));
     } else if ((action == @selector(select:) || action == @selector(selectAll:))) {
         return (self.selectedRange.length==0 && [self hasText]);
     } else if (action == @selector(paste:)) {
-        return (_editing && [[UIPasteboard generalPasteboard] string].length > 0);
+        return (_editable && _editing && [[UIPasteboard generalPasteboard] string].length > 0);
     } else if (action == @selector(delete:)) {
-        return (self.selectedRange.length>0 && _editing);
+        return (_editable && self.selectedRange.length>0 && _editing);
     }
 
     return [super canPerformAction:action withSender:sender];
@@ -1878,9 +1886,13 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 - (void)delete:(id)sender {
     [self.mutableAttributeString setAttributedString:self.attributedString];
     [self.mutableAttributeString deleteCharactersInRange:self.selectedRange];
-    [self.inputDelegate textWillChange:self];
+    if ([self.inputDelegate respondsToSelector:@selector(textWillChange:)]) {
+        [self.inputDelegate textWillChange:self];
+    }
     self.attributedString = self.mutableAttributeString;
-    [self.inputDelegate textDidChange:self];
+    if ([self.inputDelegate respondsToSelector:@selector(textDidChange:)]) {
+        [self.inputDelegate textDidChange:self];
+    }
 
     self.selectedRange = NSMakeRange(self.selectedRange.location, 0);
 }

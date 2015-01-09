@@ -21,7 +21,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.vTextView = [[VTextView alloc] initWithFrame:CGRectMake(10.f, 100.f, 300.f, 300.f)];
+    self.vTextView = [[VTextView alloc] initWithFrame:CGRectMake(10.f, 100.f, 300.f, 150.f)];
     self.vTextView.backgroundColor = [UIColor purpleColor];
     NSString *plistPath = [[NSBundle mainBundle] pathForResource:@"Emotion" ofType:@"plist"];
     NSDictionary *dictionary = [[NSDictionary alloc] initWithContentsOfFile:plistPath];
@@ -30,6 +30,11 @@
     self.vTextView.text = @"测试[高兴]并且也有点[生气],测试[高兴]并且也有点[生气]测试[高兴]并且也有点[生气],测试[高兴]并且也有点[生气]http://12345.com @住在这里 当时#大幅度发# 测试[高兴]并且也有点[生气],测试[高兴]并且也有点[生气]测试[高兴]并且也有点[生气],测试[高兴]并且也有点[生气]http://12345.com @住在这里 当时#大幅度发# ";
 
     [self.view addSubview:self.vTextView];
+
+    self.textView = [[UITextView alloc] initWithFrame:CGRectMake(10.f, 300.f, 300, 150.f)];
+    self.textView.text = @"测试[高兴]并且也有点[生气],测试[高兴]并且也有点[生气]测试[高兴]并且也有点[生气],测试[高兴]并且也有点[生气]http://12345.com @住在这里 当时#大幅度发# 测试[高兴]并且也有点[生气],测试[高兴]并且也有点[生气]测试[高兴]并且也有点[生气],测试[高兴]并且也有点[生气]http://12345.com @住在这里 当时#大幅度发# ";
+    self.textView.editable = YES;
+    [self.view addSubview:self.textView];
 }
 
 - (void)didReceiveMemoryWarning {
