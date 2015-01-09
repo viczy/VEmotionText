@@ -22,6 +22,8 @@
 
 static NSString *const vLeftDelimiter = @"\\[";
 static NSString *const vRightDelimiter = @"\\]";
+static NSString *const vAtDelimiter = @"@";
+static NSString *const vTopicDelimiter = @"#";
 static NSString *const vTextAttachmentAttributeName = @"com.everycode.vTextAttachmentAttribute";
 static NSString *const vTextAttachmentPlaceholderString = @"\ufffc";
 static NSString *const vTextAttachmentOriginStringKey = @"com.everycode.vTextAttachmentOriginString";
@@ -108,6 +110,9 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
 //Data Detectors
 - (void)scanAttachments;
+- (NSAttributedString*)checkAtWithAttributedString:(NSAttributedString*)attributedStr;
+- (NSAttributedString*)checkTopicWithAttributedStrig:(NSAttributedString*)attributedStr;
+- (NSAttributedString*)checkLinkWithAttributedStrig:(NSAttributedString*)attributedStr;
 - (void)checkLinksForRange:(NSRange)range;
 - (NSTextCheckingResult*)linkAtIndex:(NSInteger)index;
 - (BOOL)selectedLinkAtIndex:(NSInteger)index;
@@ -865,6 +870,8 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 #pragma mark - NSString<->NSAttributedString
 
 - (NSAttributedString*)converStringToAttributedString:(NSString *)string {
+    NSAttributedString *returnAttributedString;
+    //emotion replace
     NSError *error;
     NSString *pattern = [NSString stringWithFormat:@"%@(.+?)%@",vLeftDelimiter, vRightDelimiter];
     NSRegularExpression *regular = [NSRegularExpression regularExpressionWithPattern:pattern
@@ -924,7 +931,16 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
             }
         }
     }];
-    return mutableAttributedString;
+    //@ check
+    returnAttributedString = [self checkAtWithAttributedString:mutableAttributedString];
+
+    //# check
+    returnAttributedString = [self checkTopicWithAttributedStrig:returnAttributedString];
+
+    //link check
+    returnAttributedString = [self checkLinkWithAttributedStrig:returnAttributedString];
+
+    return returnAttributedString;
 }
 
 - (NSString*)converAttributedStringToString:(NSAttributedString *)attributedString {
@@ -979,6 +995,71 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     }
 }
 
+- (NSAttributedString*)checkAtWithAttributedString:(NSAttributedString*)attributedStr {
+    NSMutableDictionary *linkAttributes = [NSMutableDictionary dictionaryWithDictionary:self.currentAttributes];
+    [linkAttributes setObject:(id)[UIColor vLinkColor].CGColor
+                       forKey:(NSString*)kCTForegroundColorAttributeName];
+    NSError *error;
+    NSString *pattern = [NSString stringWithFormat:@"%@(.+?)%@",vAtDelimiter, @" "];
+    NSRegularExpression *regular = [NSRegularExpression regularExpressionWithPattern:pattern
+                                                                             options:0
+                                                                               error:&error];
+    NSMutableAttributedString *mutableAttributedString = [[NSMutableAttributedString alloc] initWithAttributedString:attributedStr];
+    NSRange stringRange = NSMakeRange(0, attributedStr.length);
+    [regular enumerateMatchesInString:[attributedStr string] options:0 range:stringRange usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) {
+        if (result.resultType == NSTextCheckingTypeRegularExpression) {
+            NSRange subRange = [result rangeAtIndex:1];
+            NSRange atRange = NSMakeRange(subRange.location-1, subRange.length+1);
+            [mutableAttributedString addAttributes:linkAttributes range:atRange];
+        }
+    }];
+    return mutableAttributedString;
+}
+
+- (NSAttributedString*)checkTopicWithAttributedStrig:(NSAttributedString*)attributedStr {
+    NSMutableDictionary *linkAttributes = [NSMutableDictionary dictionaryWithDictionary:self.currentAttributes];
+    [linkAttributes setObject:(id)[UIColor vLinkColor].CGColor
+                       forKey:(NSString*)kCTForegroundColorAttributeName];
+    NSError *error;
+    NSString *pattern = [NSString stringWithFormat:@"%@(.+?)%@",vTopicDelimiter, vTopicDelimiter];
+    NSRegularExpression *regular = [NSRegularExpression regularExpressionWithPattern:pattern
+                                                                             options:0
+                                                                               error:&error];
+    NSMutableAttributedString *mutableAttributedString = [[NSMutableAttributedString alloc] initWithAttributedString:attributedStr];
+    NSRange stringRange = NSMakeRange(0, attributedStr.length);
+    [regular enumerateMatchesInString:[attributedStr string] options:0 range:stringRange usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) {
+        if (result.resultType == NSTextCheckingTypeRegularExpression) {
+            NSRange subRange = [result rangeAtIndex:1];
+            NSRange topicRange = NSMakeRange(subRange.location-1, subRange.length+2);
+            [mutableAttributedString addAttributes:linkAttributes range:topicRange];
+        }
+    }];
+    return mutableAttributedString;
+}
+
+- (NSAttributedString*)checkLinkWithAttributedStrig:(NSAttributedString*)attributedStr {
+    NSMutableDictionary *linkAttributes = [NSMutableDictionary dictionaryWithDictionary:self.currentAttributes];
+    [linkAttributes setObject:(id)[UIColor vLinkColor].CGColor
+                       forKey:(NSString*)kCTForegroundColorAttributeName];
+
+    NSError *error;
+    NSDataDetector *linkDetector = [NSDataDetector dataDetectorWithTypes:NSTextCheckingTypeLink
+                                                                   error:&error];
+
+    NSMutableAttributedString *mutableAttributedString = [[NSMutableAttributedString alloc] initWithAttributedString:attributedStr];
+    NSRange stringRange = NSMakeRange(0, attributedStr.length);
+    [linkDetector enumerateMatchesInString:[attributedStr string]
+                                   options:0
+                                     range:stringRange
+                                usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop) {
+                                    if ([result resultType] == NSTextCheckingTypeLink) {
+                                        [mutableAttributedString addAttributes:linkAttributes range:[result range]];
+                                    }
+                                }];
+
+    return mutableAttributedString;
+}
+
 - (void)checkLinksForRange:(NSRange)range {
     NSMutableDictionary *linkAttributes = [NSMutableDictionary dictionaryWithDictionary:self.currentAttributes];
     [linkAttributes setObject:(id)[UIColor vLinkColor].CGColor
@@ -1001,9 +1082,6 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
                                 }];
 
-    if (![self.attributedString isEqualToAttributedString:mutableAttributedString]) {
-        self.attributedString = mutableAttributedString;
-    }
 }
 
 - (NSTextCheckingResult*)linkAtIndex:(NSInteger)index {
@@ -1786,7 +1864,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     [self.mutableAttributeString deleteCharactersInRange:self.selectedRange];
 
     [self.inputDelegate textWillChange:self];
-    [self setAttributedString:self.mutableAttributeString];
+    self.attributedString = self.mutableAttributeString;
     [self.inputDelegate textDidChange:self];
 
     self.selectedRange = NSMakeRange(0, 0);
@@ -1801,7 +1879,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     [self.mutableAttributeString setAttributedString:self.attributedString];
     [self.mutableAttributeString deleteCharactersInRange:self.selectedRange];
     [self.inputDelegate textWillChange:self];
-    [self setAttributedString:self.mutableAttributeString];
+    self.attributedString = self.mutableAttributeString;
     [self.inputDelegate textDidChange:self];
 
     self.selectedRange = NSMakeRange(self.selectedRange.location, 0);
