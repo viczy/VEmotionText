@@ -27,7 +27,7 @@
     NSDictionary *dictionary = [[NSDictionary alloc] initWithContentsOfFile:plistPath];
     self.vTextView.textImageMapping = dictionary;
     self.vTextView.editable = YES;
-    self.vTextView.text = @"测试[高兴]并且也有点[生气],测试[高兴]并且也有点[生气]测试[高兴]并且也有点[生气],测试[高兴]并且也有点[生气]http://12345.com @住在这里 当时#大幅度发# 测试[高兴]并且也有点[生气],测试[高兴]并且也有点[生气]测试[高兴]并且也有点[生气],测试[高兴]并且也有点[生气]http://12345.com @住在这里 当时#大幅度发# ";
+    self.vTextView.text = @"测试[高兴]并且也有点[生气],测试[高兴]";
 
     [self.view addSubview:self.vTextView];
 
