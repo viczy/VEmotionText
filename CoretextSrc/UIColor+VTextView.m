@@ -27,7 +27,7 @@
 }
 
 + (UIColor*)vLinkColor {
-    return [UIColor blueColor];
+    return [UIColor colorWithRed:0.f/255.f green:102.f/255.f blue:204.f/255.f alpha:1.f];
 }
 
 @end
