@@ -1294,10 +1294,9 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
         } else {
             NSInteger index = [self closestIndexToPoint:[gesture locationInView:self]];
             NSRange range = [self characterRangeAtIndex:index];
-            if (range.location!=NSNotFound && range.length>0) {
+            if (!_editable && range.location!=NSNotFound && range.length>0) {
                 [self.inputDelegate selectionWillChange:self];
                 self.selectedRange = range;
-                [self selectionChanged];
                 [self.inputDelegate selectionDidChange:self];
             }
 
@@ -1321,9 +1320,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
         }
 
         if (gesture.state == UIGestureRecognizerStateEnded) {
-            if (self.selectedRange.location!=NSNotFound && self.selectedRange.length>0) {
-                [self showMenu];
-            }
+            [self showMenu];
         }
     }
 }
