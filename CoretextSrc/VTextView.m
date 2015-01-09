@@ -82,6 +82,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
 - (void)common;
 - (void)textChanged;
+- (void)clearFrameRef;
 
 //Layout
 - (void)drawContentInRect:(CGRect)rect;
@@ -530,6 +531,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     self.contentSize = CGSizeMake(self.frame.size.width, contentRect.size.height+self.font.lineHeight*2);
 
     //frameRef(nsattributedstring的绘画需要通过ctframeref,而ctframesetterref是ctframeref的创建工厂)
+    [self clearFrameRef];
     self.framesetterRef = CTFramesetterCreateWithAttributedString((CFAttributedStringRef)self.attributedString);
     UIBezierPath *path = [UIBezierPath bezierPathWithRect:self.contentView.bounds];
     self.frameRef = CTFramesetterCreateFrame(self.framesetterRef,CFRangeMake(0, 0), [path CGPath], NULL);
@@ -553,6 +555,17 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 //                                       }
 //                                   }];
     [self.contentView setNeedsDisplay];
+}
+
+- (void)clearFrameRef {
+    if (self.frameRef) {
+        CFRelease(self.frameRef);
+        self.frameRef = nil;
+    }
+    if (self.framesetterRef) {
+        CFRelease(self.framesetterRef);
+        self.framesetterRef = nil;
+    }
 }
 
 #pragma mark - Height
@@ -1293,12 +1306,15 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
             }
         } else {
             NSInteger index = [self closestIndexToPoint:[gesture locationInView:self]];
-            NSRange range = [self characterRangeAtIndex:index];
-            if (!_editable && range.location!=NSNotFound && range.length>0) {
-                [self.inputDelegate selectionWillChange:self];
-                self.selectedRange = range;
-                [self.inputDelegate selectionDidChange:self];
+            NSRange range;
+            if (_editable) {
+                range = NSMakeRange(index, 0);
+            }else {
+                range = [self characterRangeAtIndex:index];
             }
+            [self.inputDelegate selectionWillChange:self];
+            self.selectedRange = range;
+            [self.inputDelegate selectionDidChange:self];
 
             CGPoint location = [gesture locationInView:self.textWindow];
             CGRect rect = CGRectMake(location.x, location.y, self.caretView.bounds.size.width, self.caretView.bounds.size.height);
