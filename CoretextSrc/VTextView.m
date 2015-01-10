@@ -222,7 +222,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 }
 
 - (VTextWindow*)textWindow {
-    if (_textWindow==nil) {
+    if (!_textWindow) {
         VTextWindow *window;
         for (VTextWindow *aWindow in [[UIApplication sharedApplication] windows]){
             if ([aWindow isKindOfClass:[VTextWindow class]]) {
@@ -231,7 +231,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
                 break;
             }
         }
-        if (window==nil) {
+        if (!window) {
             window = [[VTextWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
         }
         window.windowLevel = UIWindowLevelStatusBar;
@@ -296,11 +296,6 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
 - (void)setAttributedString:(NSAttributedString *)attributedString {
     _attributedString = attributedString;
-//    NSRange stringRange = NSMakeRange(0, attributedString.length);
-//    if (!_editing && !_editable) {
-//        [self checkLinksForRange:stringRange];
-//    }
-
     [self textChanged];
     if ([self.delegate respondsToSelector:@selector(vTextViewDidChange:)]) {
         [self.delegate vTextViewDidChange:self];
@@ -413,21 +408,8 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
                 CGRect rect = {{origins[i].x+position.x, origins[i].y+position.y-descent}, size};
                 [attachment attachmentDrawInRect:rect withContent:contextRef];
             }
-//            CFRelease(run);
-//            CFRelease(attributes);
-//            run = NULL;
-//            attributes = NULL;
         }
-//        CFRelease(lineRef);
-//        CFRelease(runs);
-//        lineRef = NULL;
-//        runs = NULL;
     }
-
-//    CFRelease(frameRefPath);
-//    CFRelease(lines);
-//    frameRefPath = NULL;
-//    lines = NULL;
 }
 
 - (void)drawBoundingRangeAsSelection:(NSRange)selectionRange cornerRadius:(CGFloat)cornerRadius {
@@ -457,14 +439,9 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
             }
             [pathRects addObject:NSStringFromCGRect(selectionRect)];
         }
-//        CFRelease(line);
-//        line = NULL;
     }
 
     [self drawPathFromRects:pathRects cornerRadius:cornerRadius];
-
-//    CFRelease(lines);
-//    lines = NULL;
 }
 
 - (void)drawPathFromRects:(NSArray*)array cornerRadius:(CGFloat)cornerRadius {
@@ -548,7 +525,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     self.contentSize = CGSizeMake(self.frame.size.width, contentRect.size.height+self.font.lineHeight*2);
 
     //frameRef(nsattributedstring的绘画需要通过ctframeref,而ctframesetterref是ctframeref的创建工厂)
-//    [self clearFrameRef];
+    [self clearFrameRef];
     self.framesetterRef = CTFramesetterCreateWithAttributedString((CFAttributedStringRef)self.attributedString);
     UIBezierPath *path = [UIBezierPath bezierPathWithRect:self.contentView.bounds];
     self.frameRef = CTFramesetterCreateFrame(self.framesetterRef,CFRangeMake(0, 0), [path CGPath], NULL);
@@ -557,13 +534,13 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 }
 
 - (void)clearFrameRef {
-    if (_frameRef) {
-        CFRelease(_frameRef);
-        _frameRef = NULL;
-    }
     if (_framesetterRef) {
         CFRelease(_framesetterRef);
         _framesetterRef = nil;
+    }
+    if (_frameRef) {
+        CFRelease(_frameRef);
+        _frameRef = NULL;
     }
 }
 
@@ -587,18 +564,12 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
             CTLineRef lineRef = (CTLineRef)CFArrayGetValueAtIndex(lines, i);
             CGPoint convertedPoint = CGPointMake(point.x - origins[i].x, point.y - origins[i].y);
             index = CTLineGetStringIndexForPosition(lineRef, convertedPoint);
-
- //           CFRelease(lineRef);
- //           lineRef = NULL;
             break;
         }
     }
     if (index == kCFNotFound) {
         index = [self.attributedString length];
     }
-
-//    CFRelease(lines);
-//    lines = NULL;
 
     return index;
 }
@@ -640,13 +611,9 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
                     *stop = YES;
                 }
             }];
-//            CFRelease(line);
-//            line = NULL;
             break;
         }
     }
-//    CFRelease(lines);
-//    lines = NULL;
     return  returnRange;
 }
 
@@ -668,11 +635,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
                 }];
             }
         }
-//        CFRelease(line);
-//        line = NULL;
     }
-//    CFRelease(lines);
-//    lines = NULL;
 
     return returnRange;
 }
@@ -763,10 +726,6 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
         CGPoint origins[count];
         CTFrameGetLineOrigins(self.frameRef, CFRangeMake(0, 0), origins);
         origin = origins[0];
-//        CFRelease(line);
-//        line = NULL;
-//        CFRelease(lines);
-//        lines = NULL;
         origin.y -= self.font.leading;
         return CGRectMake(origin.x + xPos, floorf(origin.y - descent), 3, ceilf((descent*2) + ascent));
     }
@@ -794,12 +753,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
             returnRect = CGRectMake(origin.x + xPos,  floorf(origin.y - descent)-2.f, 3, ceilf((descent*2) + ascent));
         }
-//        CFRelease(line);
-//        line = NULL;
     }
-
-//    CFRelease(lines);
-//    lines = NULL;
 
     return returnRect;
 }
@@ -826,11 +780,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
             returnRect = [self.contentView convertRect:CGRectMake(origin.x + xStart, origin.y - descent, xEnd - xStart, ascent + (descent*2)) toView:self];
             break;
         }
-//        CFRelease(line);
-//        line = NULL;
     }
-//    CFRelease(lines);
-//   lines = NULL;
 
     return returnRect;
 }
