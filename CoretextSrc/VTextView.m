@@ -29,7 +29,7 @@ static NSString *const vTextAttachmentPlaceholderString = @"\ufffc";
 static NSString *const vTextAttachmentOriginStringKey = @"com.everycode.vTextAttachmentOriginString";
 
 static void AttachmentRunDelegateDealloc(void *refCon) {
-    CFBridgingRelease(refCon);
+//    CFBridgingRelease(refCon);
 }
 
 static CGSize AttachmentRunDelegateGetSize(void *refCon) {
