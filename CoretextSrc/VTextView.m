@@ -296,6 +296,9 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
 - (void)setAttributedString:(NSAttributedString *)attributedString {
     _attributedString = attributedString;
+    if(!_mutableAttributeString) {
+        _mutableAttributeString = [[NSMutableAttributedString alloc] initWithAttributedString:attributedString];
+    }
     [self textChanged];
     if ([self.delegate respondsToSelector:@selector(vTextViewDidChange:)]) {
         [self.delegate vTextViewDidChange:self];
@@ -371,7 +374,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 #pragma mark - Layout
 
 - (void)drawContentInRect:(CGRect)rect {
-    UIColor *fillColor = [UIColor clearColor];
+    UIColor *fillColor = [UIColor whiteColor];
     [fillColor setFill];
     [self drawBoundingRangeAsSelection:self.linkRange cornerRadius:2.f];
     [[UIColor vSelectionColor] setFill];
@@ -406,7 +409,9 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
                 CTRunGetTypographicBounds(run, CFRangeMake(0, 1), &ascent, &descent, &leading);
                 CGSize size = [attachment attachmentSize];
                 CGRect rect = {{origins[i].x+position.x, origins[i].y+position.y-descent}, size};
+                CGContextSaveGState(contextRef);
                 [attachment attachmentDrawInRect:rect withContent:contextRef];
+                CGContextRestoreGState(contextRef);
             }
         }
     }
@@ -525,22 +530,28 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     self.contentSize = CGSizeMake(self.frame.size.width, contentRect.size.height+self.font.lineHeight*2);
 
     //frameRef(nsattributedstring的绘画需要通过ctframeref,而ctframesetterref是ctframeref的创建工厂)
-    [self clearFrameRef];
-    self.framesetterRef = CTFramesetterCreateWithAttributedString((CFAttributedStringRef)self.attributedString);
+//    [self clearFrameRef];
+    [self clearFramesetterRef];
+    _framesetterRef = CTFramesetterCreateWithAttributedString((CFAttributedStringRef)self.attributedString);
     UIBezierPath *path = [UIBezierPath bezierPathWithRect:self.contentView.bounds];
-    self.frameRef = CTFramesetterCreateFrame(self.framesetterRef,CFRangeMake(0, 0), [path CGPath], NULL);
-
+    
+    [self clearFrameRef];
+    _frameRef = CTFramesetterCreateFrame(self.framesetterRef,CFRangeMake(0, 0), [path CGPath], NULL);
+    
     [self.contentView setNeedsDisplay];
 }
 
 - (void)clearFrameRef {
-    if (_framesetterRef) {
-        CFRelease(_framesetterRef);
-        _framesetterRef = nil;
-    }
     if (_frameRef) {
         CFRelease(_frameRef);
         _frameRef = NULL;
+    }
+}
+
+- (void)clearFramesetterRef {
+    if (_framesetterRef) {
+        CFRelease(_framesetterRef);
+        _framesetterRef = NULL;
     }
 }
 
@@ -815,7 +826,8 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 }
 
 - (void)checkSpellingForRange:(NSRange)range {
-    [self.mutableAttributeString setAttributedString:self.attributedString];
+    self.mutableAttributeString = [[NSMutableAttributedString alloc] initWithAttributedString:self.attributedString];
+//    [self.mutableAttributeString setAttributedString:self.attributedString];
 
     NSInteger location = range.location-1;
     NSInteger currentOffset = MAX(0, location);
@@ -1671,7 +1683,8 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     NSRange selectedNSRange = self.selectedRange;
     NSRange markedTextRange = self.markedRange;
 
-    [self.mutableAttributeString setAttributedString:self.attributedString];
+    self.mutableAttributeString = [[NSMutableAttributedString alloc] initWithAttributedString:self.attributedString];
+//    [self.mutableAttributeString setAttributedString:self.attributedString];
     NSAttributedString *newString = nil;
     if (text.length < 3) {
         newString = [[NSAttributedString alloc] initWithString:text
@@ -1726,8 +1739,8 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
                                                object:nil];
     NSRange selectedNSRange = self.selectedRange;
     NSRange markedTextRange = self.markedRange;
-
-    [self.mutableAttributeString setAttributedString:self.attributedString];
+    
+    self.mutableAttributeString = [[NSMutableAttributedString alloc] initWithAttributedString:self.attributedString];
 
     if (self.correctionRange.location != NSNotFound && _correctionRange.length > 0) {
         [self.mutableAttributeString beginEditing];
@@ -1754,8 +1767,8 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     } else if (selectedNSRange.location > 0) {
 
         NSInteger index = MAX(0, selectedNSRange.location-1);
-        index = MIN(_attributedString.length-1, index);
-        if ([_attributedString.string characterAtIndex:index] == ' ') {
+        index = MIN(self.attributedString.length-1, index);
+        if ([self.attributedString.string characterAtIndex:index] == ' ') {
             [self performSelector:@selector(showCorrectionMenuWithoutSelection)
                        withObject:nil
                        afterDelay:0.2f];
@@ -1767,9 +1780,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
         [self.mutableAttributeString deleteCharactersInRange:selectedNSRange];
         [self.mutableAttributeString endEditing];
         selectedNSRange.length = 0;
-
     }
-
     self.attributedString = self.mutableAttributeString;
     self.markedRange = markedTextRange;
     self.selectedRange = selectedNSRange;
@@ -1877,7 +1888,8 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
 
     NSString *string = [self converAttributedStringToString:[self.attributedString attributedSubstringFromRange:self.selectedRange]];
     [[UIPasteboard generalPasteboard] setString:string];
-    [self.mutableAttributeString setAttributedString:self.attributedString];
+    self.mutableAttributeString = [[NSMutableAttributedString alloc] initWithAttributedString:self.attributedString];
+//    [self.mutableAttributeString setAttributedString:self.attributedString];
 
     if ([self.inputDelegate respondsToSelector:@selector(textDidChange:)]) {
         [self.inputDelegate textDidChange:self];
@@ -1899,8 +1911,9 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     if ([self.inputDelegate respondsToSelector:@selector(textWillChange:)]) {
         [self.inputDelegate textWillChange:self];
     }
-
-    [self.mutableAttributeString setAttributedString:self.attributedString];
+    
+    self.mutableAttributeString = [[NSMutableAttributedString alloc] initWithAttributedString:self.attributedString];
+//    [self.mutableAttributeString setAttributedString:self.attributedString];
 
     if ([self.inputDelegate respondsToSelector:@selector(textDidChange:)]) {
         [self.inputDelegate textDidChange:self];
