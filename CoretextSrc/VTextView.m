@@ -498,7 +498,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     _font = [UIFont systemFontOfSize:17];
     _autocorrectionType = UITextAutocorrectionTypeNo;
     _dataDetectorTypes = UIDataDetectorTypeLink;
-    self.alwaysBounceVertical = YES;
+//    self.alwaysBounceVertical = YES;
     self.backgroundColor = [UIColor whiteColor];
     self.clipsToBounds = YES;
     [self addSubview:self.contentView];
@@ -1001,7 +1001,7 @@ static CGFloat AttachmentRunDelegateGetWidth(void *refCon) {
     [linkAttributes setObject:(id)[UIColor vLinkColor].CGColor
                        forKey:(NSString*)kCTForegroundColorAttributeName];
     NSError *error;
-    NSString *pattern = [NSString stringWithFormat:@"%@(.+?)%@",vAtDelimiter, @" "];
+    NSString *pattern = [NSString stringWithFormat:@"%@(.+?)%@",vAtDelimiter, @":"];
     NSRegularExpression *regular = [NSRegularExpression regularExpressionWithPattern:pattern
                                                                              options:0
                                                                                error:&error];
