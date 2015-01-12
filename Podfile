@@ -6,3 +6,4 @@ pod 'RegexKitLite'
 
 #view
 pod 'DTCoreText'
+pod 'VTextView', :git => 'https://github.com/viczy/VTextView.git'

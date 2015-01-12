@@ -1,0 +1,1 @@
+../../../VTextView/Source/VMagnifierView.h

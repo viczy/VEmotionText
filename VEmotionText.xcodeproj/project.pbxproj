@@ -21,25 +21,6 @@
 		F92DB31D1A5248F2002CC793 /* emotion2@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F92DB3191A5248F2002CC793 /* emotion2@2x.png */; };
 		F92DB3221A524E99002CC793 /* Emotion.plist in Resources */ = {isa = PBXBuildFile; fileRef = F92DB3211A524E99002CC793 /* Emotion.plist */; };
 		F92DB32B1A5252D0002CC793 /* NSString+HTML.m in Sources */ = {isa = PBXBuildFile; fileRef = F92DB32A1A5252D0002CC793 /* NSString+HTML.m */; };
-		F92DB3321A53AA7E002CC793 /* VTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = F92DB3311A53AA7E002CC793 /* VTextView.m */; };
-		F95302741A5A41E300CF6925 /* VMagnifierView.m in Sources */ = {isa = PBXBuildFile; fileRef = F95302731A5A41E300CF6925 /* VMagnifierView.m */; };
-		F9771DA91A590EB5004F176E /* VLoupeView.m in Sources */ = {isa = PBXBuildFile; fileRef = F9771DA81A590EB5004F176E /* VLoupeView.m */; };
-		F9771DAC1A59192C004F176E /* VRangedMagnifierView.m in Sources */ = {isa = PBXBuildFile; fileRef = F9771DAB1A59192C004F176E /* VRangedMagnifierView.m */; };
-		F9771DAF1A59205D004F176E /* UIColor+VTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = F9771DAE1A59205D004F176E /* UIColor+VTextView.m */; };
-		F9771DB21A592195004F176E /* VCaretView.m in Sources */ = {isa = PBXBuildFile; fileRef = F9771DB11A592195004F176E /* VCaretView.m */; };
-		F9771DB51A592A5B004F176E /* VContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = F9771DB41A592A5B004F176E /* VContentView.m */; };
-		F9771DB81A593936004F176E /* VTextPostion.m in Sources */ = {isa = PBXBuildFile; fileRef = F9771DB71A593936004F176E /* VTextPostion.m */; };
-		F9771DBB1A593BCD004F176E /* VTextRange.m in Sources */ = {isa = PBXBuildFile; fileRef = F9771DBA1A593BCD004F176E /* VTextRange.m */; };
-		F9771DBE1A594023004F176E /* VSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = F9771DBD1A594023004F176E /* VSelectionView.m */; };
-		F9771DC11A5A230F004F176E /* VTextWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = F9771DC01A5A230F004F176E /* VTextWindow.m */; };
-		F978D44D1A5A7DFE001641D8 /* UIImage+VTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = F978D44C1A5A7DFE001641D8 /* UIImage+VTextView.m */; };
-		F9E8D9821A5D275300076C53 /* drag_dot@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F9E8D97B1A5D275300076C53 /* drag_dot@2x.png */; };
-		F9E8D9831A5D275300076C53 /* loupe_hi@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F9E8D97C1A5D275300076C53 /* loupe_hi@2x.png */; };
-		F9E8D9841A5D275300076C53 /* loupe_lo@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F9E8D97D1A5D275300076C53 /* loupe_lo@2x.png */; };
-		F9E8D9851A5D275300076C53 /* loupe_mask@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F9E8D97E1A5D275300076C53 /* loupe_mask@2x.png */; };
-		F9E8D9861A5D275300076C53 /* ranged_magnifier_hi@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F9E8D97F1A5D275300076C53 /* ranged_magnifier_hi@2x.png */; };
-		F9E8D9871A5D275300076C53 /* ranged_magnifier_lo@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F9E8D9801A5D275300076C53 /* ranged_magnifier_lo@2x.png */; };
-		F9E8D9881A5D275300076C53 /* ranged_magnifier_mask@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F9E8D9811A5D275300076C53 /* ranged_magnifier_mask@2x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -65,39 +46,6 @@
 		F92DB3211A524E99002CC793 /* Emotion.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Emotion.plist; sourceTree = "<group>"; };
 		F92DB3291A5252D0002CC793 /* NSString+HTML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+HTML.h"; sourceTree = "<group>"; };
 		F92DB32A1A5252D0002CC793 /* NSString+HTML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+HTML.m"; sourceTree = "<group>"; };
-		F92DB3301A53AA7E002CC793 /* VTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VTextView.h; sourceTree = "<group>"; };
-		F92DB3311A53AA7E002CC793 /* VTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VTextView.m; sourceTree = "<group>"; };
-		F95302721A5A41E300CF6925 /* VMagnifierView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMagnifierView.h; sourceTree = "<group>"; };
-		F95302731A5A41E300CF6925 /* VMagnifierView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VMagnifierView.m; sourceTree = "<group>"; };
-		F95302751A5A5DFC00CF6925 /* VTextViewDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VTextViewDelegate.h; sourceTree = "<group>"; };
-		F9771DA71A590EB5004F176E /* VLoupeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VLoupeView.h; sourceTree = "<group>"; };
-		F9771DA81A590EB5004F176E /* VLoupeView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VLoupeView.m; sourceTree = "<group>"; };
-		F9771DAA1A59192C004F176E /* VRangedMagnifierView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VRangedMagnifierView.h; sourceTree = "<group>"; };
-		F9771DAB1A59192C004F176E /* VRangedMagnifierView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VRangedMagnifierView.m; sourceTree = "<group>"; };
-		F9771DAD1A59205D004F176E /* UIColor+VTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+VTextView.h"; sourceTree = "<group>"; };
-		F9771DAE1A59205D004F176E /* UIColor+VTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+VTextView.m"; sourceTree = "<group>"; };
-		F9771DB01A592195004F176E /* VCaretView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VCaretView.h; sourceTree = "<group>"; };
-		F9771DB11A592195004F176E /* VCaretView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VCaretView.m; sourceTree = "<group>"; };
-		F9771DB31A592A5B004F176E /* VContentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VContentView.h; sourceTree = "<group>"; };
-		F9771DB41A592A5B004F176E /* VContentView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VContentView.m; sourceTree = "<group>"; };
-		F9771DB61A593936004F176E /* VTextPostion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VTextPostion.h; sourceTree = "<group>"; };
-		F9771DB71A593936004F176E /* VTextPostion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VTextPostion.m; sourceTree = "<group>"; };
-		F9771DB91A593BCD004F176E /* VTextRange.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VTextRange.h; sourceTree = "<group>"; };
-		F9771DBA1A593BCD004F176E /* VTextRange.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VTextRange.m; sourceTree = "<group>"; };
-		F9771DBC1A594023004F176E /* VSelectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VSelectionView.h; sourceTree = "<group>"; };
-		F9771DBD1A594023004F176E /* VSelectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSelectionView.m; sourceTree = "<group>"; };
-		F9771DBF1A5A230F004F176E /* VTextWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VTextWindow.h; sourceTree = "<group>"; };
-		F9771DC01A5A230F004F176E /* VTextWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VTextWindow.m; sourceTree = "<group>"; };
-		F978D44A1A5A7D2C001641D8 /* VTextAttachment.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VTextAttachment.h; sourceTree = "<group>"; };
-		F978D44B1A5A7DFE001641D8 /* UIImage+VTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+VTextView.h"; sourceTree = "<group>"; };
-		F978D44C1A5A7DFE001641D8 /* UIImage+VTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+VTextView.m"; sourceTree = "<group>"; };
-		F9E8D97B1A5D275300076C53 /* drag_dot@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "drag_dot@2x.png"; sourceTree = "<group>"; };
-		F9E8D97C1A5D275300076C53 /* loupe_hi@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "loupe_hi@2x.png"; sourceTree = "<group>"; };
-		F9E8D97D1A5D275300076C53 /* loupe_lo@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "loupe_lo@2x.png"; sourceTree = "<group>"; };
-		F9E8D97E1A5D275300076C53 /* loupe_mask@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "loupe_mask@2x.png"; sourceTree = "<group>"; };
-		F9E8D97F1A5D275300076C53 /* ranged_magnifier_hi@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ranged_magnifier_hi@2x.png"; sourceTree = "<group>"; };
-		F9E8D9801A5D275300076C53 /* ranged_magnifier_lo@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ranged_magnifier_lo@2x.png"; sourceTree = "<group>"; };
-		F9E8D9811A5D275300076C53 /* ranged_magnifier_mask@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ranged_magnifier_mask@2x.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -203,7 +151,6 @@
 			isa = PBXGroup;
 			children = (
 				F92DB3281A5252A2002CC793 /* WebSrc */,
-				F92DB3271A525292002CC793 /* CoretextSrc */,
 				F92DB2F01A52448F002CC793 /* CoretextController.h */,
 				F92DB2F11A52448F002CC793 /* CoretextController.m */,
 				F92DB2F31A52448F002CC793 /* WebController.h */,
@@ -221,40 +168,6 @@
 			name = Storyboards;
 			sourceTree = "<group>";
 		};
-		F92DB3271A525292002CC793 /* CoretextSrc */ = {
-			isa = PBXGroup;
-			children = (
-				F9E8D97A1A5D275300076C53 /* Resource */,
-				F95302751A5A5DFC00CF6925 /* VTextViewDelegate.h */,
-				F978D44A1A5A7D2C001641D8 /* VTextAttachment.h */,
-				F92DB3301A53AA7E002CC793 /* VTextView.h */,
-				F92DB3311A53AA7E002CC793 /* VTextView.m */,
-				F9771DAD1A59205D004F176E /* UIColor+VTextView.h */,
-				F9771DAE1A59205D004F176E /* UIColor+VTextView.m */,
-				F978D44B1A5A7DFE001641D8 /* UIImage+VTextView.h */,
-				F978D44C1A5A7DFE001641D8 /* UIImage+VTextView.m */,
-				F95302721A5A41E300CF6925 /* VMagnifierView.h */,
-				F95302731A5A41E300CF6925 /* VMagnifierView.m */,
-				F9771DA71A590EB5004F176E /* VLoupeView.h */,
-				F9771DA81A590EB5004F176E /* VLoupeView.m */,
-				F9771DAA1A59192C004F176E /* VRangedMagnifierView.h */,
-				F9771DAB1A59192C004F176E /* VRangedMagnifierView.m */,
-				F9771DB01A592195004F176E /* VCaretView.h */,
-				F9771DB11A592195004F176E /* VCaretView.m */,
-				F9771DB31A592A5B004F176E /* VContentView.h */,
-				F9771DB41A592A5B004F176E /* VContentView.m */,
-				F9771DB61A593936004F176E /* VTextPostion.h */,
-				F9771DB71A593936004F176E /* VTextPostion.m */,
-				F9771DB91A593BCD004F176E /* VTextRange.h */,
-				F9771DBA1A593BCD004F176E /* VTextRange.m */,
-				F9771DBC1A594023004F176E /* VSelectionView.h */,
-				F9771DBD1A594023004F176E /* VSelectionView.m */,
-				F9771DBF1A5A230F004F176E /* VTextWindow.h */,
-				F9771DC01A5A230F004F176E /* VTextWindow.m */,
-			);
-			path = CoretextSrc;
-			sourceTree = SOURCE_ROOT;
-		};
 		F92DB3281A5252A2002CC793 /* WebSrc */ = {
 			isa = PBXGroup;
 			children = (
@@ -263,20 +176,6 @@
 			);
 			path = WebSrc;
 			sourceTree = SOURCE_ROOT;
-		};
-		F9E8D97A1A5D275300076C53 /* Resource */ = {
-			isa = PBXGroup;
-			children = (
-				F9E8D97B1A5D275300076C53 /* drag_dot@2x.png */,
-				F9E8D97C1A5D275300076C53 /* loupe_hi@2x.png */,
-				F9E8D97D1A5D275300076C53 /* loupe_lo@2x.png */,
-				F9E8D97E1A5D275300076C53 /* loupe_mask@2x.png */,
-				F9E8D97F1A5D275300076C53 /* ranged_magnifier_hi@2x.png */,
-				F9E8D9801A5D275300076C53 /* ranged_magnifier_lo@2x.png */,
-				F9E8D9811A5D275300076C53 /* ranged_magnifier_mask@2x.png */,
-			);
-			path = Resource;
-			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
@@ -338,17 +237,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				F92DB31B1A5248F2002CC793 /* emotion1@2x.png in Resources */,
-				F9E8D9871A5D275300076C53 /* ranged_magnifier_lo@2x.png in Resources */,
-				F9E8D9831A5D275300076C53 /* loupe_hi@2x.png in Resources */,
-				F9E8D9861A5D275300076C53 /* ranged_magnifier_hi@2x.png in Resources */,
-				F9E8D9881A5D275300076C53 /* ranged_magnifier_mask@2x.png in Resources */,
 				F92DB31A1A5248F2002CC793 /* emotion1.png in Resources */,
 				F92DB3221A524E99002CC793 /* Emotion.plist in Resources */,
 				F92DB2F81A52448F002CC793 /* Main.storyboard in Resources */,
 				F92DB31C1A5248F2002CC793 /* emotion2.png in Resources */,
-				F9E8D9841A5D275300076C53 /* loupe_lo@2x.png in Resources */,
-				F9E8D9821A5D275300076C53 /* drag_dot@2x.png in Resources */,
-				F9E8D9851A5D275300076C53 /* loupe_mask@2x.png in Resources */,
 				F92DB2FD1A52448F002CC793 /* LaunchScreen.xib in Resources */,
 				F92DB31D1A5248F2002CC793 /* emotion2@2x.png in Resources */,
 				F92DB2FA1A52448F002CC793 /* Images.xcassets in Resources */,
@@ -395,23 +287,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F978D44D1A5A7DFE001641D8 /* UIImage+VTextView.m in Sources */,
-				F9771DA91A590EB5004F176E /* VLoupeView.m in Sources */,
-				F9771DB21A592195004F176E /* VCaretView.m in Sources */,
 				F92DB2F51A52448F002CC793 /* WebController.m in Sources */,
-				F9771DB81A593936004F176E /* VTextPostion.m in Sources */,
 				F92DB2EF1A52448F002CC793 /* AppDelegate.m in Sources */,
-				F9771DC11A5A230F004F176E /* VTextWindow.m in Sources */,
-				F92DB3321A53AA7E002CC793 /* VTextView.m in Sources */,
 				F92DB32B1A5252D0002CC793 /* NSString+HTML.m in Sources */,
-				F9771DBB1A593BCD004F176E /* VTextRange.m in Sources */,
-				F9771DB51A592A5B004F176E /* VContentView.m in Sources */,
-				F9771DAC1A59192C004F176E /* VRangedMagnifierView.m in Sources */,
 				F92DB2F21A52448F002CC793 /* CoretextController.m in Sources */,
 				F92DB2EC1A52448F002CC793 /* main.m in Sources */,
-				F9771DBE1A594023004F176E /* VSelectionView.m in Sources */,
-				F95302741A5A41E300CF6925 /* VMagnifierView.m in Sources */,
-				F9771DAF1A59205D004F176E /* UIColor+VTextView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
