@@ -1,4 +1,4 @@
 VEmotionText
 ============
 
-emotion text like weibo
+emoion view like sina weibo，use coretext or webview
