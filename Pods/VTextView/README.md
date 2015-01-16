@@ -1,2 +1,0 @@
-# VTextView
-a custom textview
